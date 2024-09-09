@@ -17,7 +17,9 @@ function MainPage() {
           <S.MainFeatItem onClick={() => navigate("/schedule/1")}>
             make new schedule
           </S.MainFeatItem>
-          <S.MainFeatItem>view my schedules</S.MainFeatItem>
+          <S.MainFeatItem onClick={() => navigate("/mypage")}>
+            view my schedules
+          </S.MainFeatItem>
         </S.MainFeatBox>
       </S.TopBox>
     </S.Container>
