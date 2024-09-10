@@ -9,7 +9,13 @@ function MainPage() {
     <S.Container>
       <S.TopBox>
         <S.TopTitle>YOUR'S JEJU</S.TopTitle>
-        <S.TopLoginButton>
+        <S.TopLoginButton
+          onClick={() => {
+            console.log("routing");
+            const url = "http://3.35.101.171/oauth2/authorization/google";
+            window.location.href = url;
+          }}
+        >
           <S.TopLoginButtonImg src={Google} alt="Google" />
           Continue with Google
         </S.TopLoginButton>

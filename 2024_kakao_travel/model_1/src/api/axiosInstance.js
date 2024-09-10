@@ -1,6 +1,8 @@
 import axios from "axios";
+// 리액트로 특정 사이트 크롤링
+//https://makeit80.tistory.com/entry/React-%EB%A6%AC%EC%95%A1%ED%8A%B8%EC%97%90%EC%84%9C-%ED%81%AC%EB%A1%A4%EB%A7%81%ED%95%98%EA%B8%B0
 
-const BASE_URL = "http://15.165.185.157:8080";
+const BASE_URL = "http://3.35.101.171";
 
 // 단순 get요청으로 인증값이 필요없는 경우
 const axiosApi = (url) => {
@@ -11,32 +13,6 @@ const axiosApi = (url) => {
       // "X-CSRFToken": csrftoken,
     },
     // ...options,
-  });
-  return instance;
-};
-
-const axiosSellerApi = (url, options) => {
-  const token = localStorage.getItem("accessToken");
-  const instance = axios.create({
-    baseURL: url,
-    headers: {
-      Authorization: "Bearer " + token,
-    },
-    ...options,
-  });
-  return instance;
-};
-
-const axiosBuyerApi = (url, options) => {
-  const token =
-    localStorage.getItem("accessToken") ||
-    import.meta.env.VITE_WOONG_BUYER_API_KEY;
-  const instance = axios.create({
-    baseURL: url,
-    headers: {
-      Authorization: "Bearer " + token,
-    },
-    ...options,
   });
   return instance;
 };
@@ -57,7 +33,7 @@ const axiosAuthApi = (url, options = {}) => {
       // 로컬 스토리지에서 토큰 가져오기
       const token =
         localStorage.getItem("accessToken") ||
-        import.meta.env.VITE_UNIMADE_ADMIN_API_KEY;
+        import.meta.env.VITE_GAMGYULMAN_USER_API_KEY;
       // 토큰이 있으면 Authorization 헤더에 추가
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
@@ -71,7 +47,5 @@ const axiosAuthApi = (url, options = {}) => {
   return instance;
 };
 
-export const sellerInstance = axiosSellerApi(BASE_URL);
-export const buyerInstance = axiosBuyerApi(BASE_URL);
 export const authInstance = axiosAuthApi(BASE_URL);
 export const defaultInstance = axiosApi(BASE_URL);
