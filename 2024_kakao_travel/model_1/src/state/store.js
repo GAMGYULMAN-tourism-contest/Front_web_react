@@ -3,6 +3,7 @@ import { persistStore, persistReducer } from "redux-persist";
 import sessionStorage from "redux-persist/lib/storage/session"; // 세션 스토리지 사용
 import productsReducer from "./products/productsSlice";
 import purchaseReducer from "./purchase/purchaseSlice";
+import schedulesReducer from "./schedules/schedulesSlice";
 import { combineReducers } from "redux";
 
 // persist 설정
@@ -14,6 +15,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
   products: productsReducer,
   purchase: purchaseReducer,
+  schedules: schedulesReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -10,7 +10,7 @@ const Container = styled.div`
 
 const TopBox = styled.div`
   width: 100%;
-  height: 800px;
+  height: 100%;
   background-color: #f5f5f5;
   display: flex;
   flex-direction: column;
@@ -19,14 +19,16 @@ const TopBox = styled.div`
   background-size: 100% 100%;
 `;
 const TopTitle = styled.div`
-  margin-top: 60px;
-  font-size: 80px;
-  margin-bottom: 30px;
+  margin-top: 85px;
+  /* font-size: 90px; */
+  font-size: 12vh;
+  margin-bottom: 90px;
 `;
 const TopLoginButton = styled.button`
-  width: 400px;
-  height: 70px;
-  font-size: 20px;
+  width: 30vw;
+  height: 9vh;
+  /* font-size: 20px; */
+  font-size: 1.5vw;
   display: flex;
   /* justify-content: center; */
   align-items: center;
@@ -49,7 +51,7 @@ const TopLoginButtonImg = styled.img`
 `;
 
 const MainFeatBox = styled.div`
-  margin-top: 200px;
+  margin-top: 60px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -58,18 +60,20 @@ const MainFeatBox = styled.div`
 `;
 const MainFeatItem = styled.div`
   width: 40%;
-  height: 200px;
+  height: 25vh;
   background-color: #fdf4ea;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-size: 30px;
+  /* font-size: 30px; */
+  font-size: 4vh;
   cursor: pointer;
   opacity: 0.7;
   border-radius: 20px;
   &:hover {
     opacity: 1;
+    scale: 1.02;
     transition: opacity 0.8s ease;
   }
 `;
