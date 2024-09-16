@@ -4,11 +4,38 @@ import * as S from "./MyPage.style";
 function MyPage() {
   return (
     <S.Container>
-      <S.TopBox></S.TopBox>
-      <S.MainBox>
-        <S.MainUpBox></S.MainUpBox>
-        <S.MainDownBox></S.MainDownBox>
-      </S.MainBox>
+      <S.SchedulesBox>
+        <S.TopBox>
+          <span>my shedules</span>
+        </S.TopBox>
+        <S.MainBox>
+          <p>123</p>
+          <p>123</p>
+          <p>123</p>
+          <p>123</p>
+          <p>123</p>
+          <p>123</p>
+          <p>123</p>
+          <p>123</p>
+          <p>123</p>
+          <p>123</p>
+          <p>123</p>
+          <p>123</p>
+          <p>123</p>
+          <p>123</p>
+          <p>123</p>
+          <p>123</p>
+          <p>123</p>
+          <p>123</p>
+          <p>123</p>
+        </S.MainBox>
+      </S.SchedulesBox>
+      <S.SchedulesBox>
+        <S.TopBox>
+          <span>invited shedules</span>
+        </S.TopBox>
+        <S.MainBox></S.MainBox>
+      </S.SchedulesBox>
     </S.Container>
   );
 }

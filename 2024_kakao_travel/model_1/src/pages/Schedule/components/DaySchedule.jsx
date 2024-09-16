@@ -46,8 +46,7 @@ const HourBlock = styled.div`
   border: 1px solid #ccc;
   position: relative;
   height: 60px;
-  background-color: ${({ $isOver }) =>
-    $isOver ? "lightblue" : "paleturquoise"};
+  background-color: ${({ $isOver }) => ($isOver ? "#777777" : "#cdcdcdb8")};
 `;
 
 // Hour 텍스트 스타일
@@ -96,7 +95,7 @@ const StyledResizeHandle = styled.div`
   position: absolute;
   width: 10px;
   height: 10px;
-  background-color: blue;
+  background-color: #cdfffc;
   bottom: 0;
   right: 0;
   cursor: se-resize;

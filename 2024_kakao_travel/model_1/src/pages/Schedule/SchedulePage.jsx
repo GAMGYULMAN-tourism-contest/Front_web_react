@@ -70,6 +70,7 @@ function SchedulePage() {
             onScheduleUpdate={handleScheduleUpdate}
           />
         ))}
+        <button>생성</button>
       </S.ScheduleBox>
     </S.Container>
   );
