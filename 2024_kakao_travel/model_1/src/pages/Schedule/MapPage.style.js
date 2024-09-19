@@ -17,7 +17,6 @@ const FloatingButton = styled.button`
   position: fixed;
   bottom: 20px;
   right: 40px;
-  background-color: #4caf50;
   color: white;
   padding: 20px 20px;
   border: none;
@@ -25,6 +24,7 @@ const FloatingButton = styled.button`
   z-index: 20;
   border-radius: 50%;
   font-size: 38px;
+  background-color: #ffbd49;
 `;
 
 export { Container, SearchBox, MapBox, FloatingButton };

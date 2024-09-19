@@ -8,7 +8,7 @@ const Container = styled.div`
 
 const MenuBox = styled.div`
   width: 30%;
-  overflow-y: auto;
+  /* overflow-y: auto; */
 `;
 const ScheduleBox = styled.div`
   width: 70%;
@@ -31,6 +31,7 @@ const FloatingButton = styled.button`
   z-index: 20;
   border-radius: 50%;
   font-size: 38px;
+  background-color: #ffbd49;
 `;
 
 export { Container, MenuBox, ScheduleBox, FloatingButton };

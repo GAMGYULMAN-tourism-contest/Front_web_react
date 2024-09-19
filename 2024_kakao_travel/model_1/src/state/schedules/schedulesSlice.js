@@ -9,7 +9,44 @@ export const getSchedules = createAsyncThunk(
 );
 
 const initialState = {
-  schedules: [],
+  schedules: [
+    [
+      {
+        day: "1",
+        events: [
+          {
+            scheduleId: "1",
+            startTime: "6:00",
+            endTime: "9:15",
+            title: "Morning Exercise",
+          },
+          {
+            scheduleId: "2",
+            startTime: "10:00",
+            endTime: "11:00",
+            title: "Team Meeting",
+          },
+        ],
+      },
+      {
+        day: "2",
+        events: [
+          {
+            scheduleId: "3",
+            startTime: "8:00",
+            endTime: "9:00",
+            title: "Breakfast",
+          },
+          {
+            scheduleId: "4",
+            startTime: "12:00",
+            endTime: "13:00",
+            title: "Lunch",
+          },
+        ],
+      },
+    ],
+  ],
   currentSchedule: null,
   getSchedulesStatus: "", // getSchedules API 호출 상태
 };
@@ -17,7 +54,12 @@ const initialState = {
 const schedulesSlice = createSlice({
   name: "schedules", // 이 슬라이스를 구분하는 이름
   initialState, // initialState : initialState 처럼 똑같이 적는 경우 이렇게 쓸 수 있음
-  reducers: {},
+  reducers: {
+    addDayEvent: (state, action) => {
+      console.log(action.payload); // day, start/endtime
+      // if -> 겹치는 시간 있으면 불가능하다고 alert , 아니면 추가 진행
+    },
+  },
   extraReducers: (builder) => {
     // 프로미스 로딩 (pending) 시점
     builder.addCase(getSchedules.pending, (state) => {
@@ -40,5 +82,5 @@ const schedulesSlice = createSlice({
   },
 });
 
-// export const {} = schedulesSlice.actions;
+export const { addDayEvent } = schedulesSlice.actions;
 export default schedulesSlice.reducer; // 리듀서를 통째로 반환해야 emutable한 기능 사용가능

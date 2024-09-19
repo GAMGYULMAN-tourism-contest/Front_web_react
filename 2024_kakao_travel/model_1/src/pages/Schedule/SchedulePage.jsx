@@ -59,6 +59,7 @@ function SchedulePage() {
     );
   };
 
+  console.log(schedules);
   return (
     <S.Container>
       <S.MenuBox>
