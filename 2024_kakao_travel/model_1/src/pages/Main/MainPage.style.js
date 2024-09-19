@@ -30,12 +30,19 @@ const TopLoginButton = styled.button`
   /* font-size: 20px; */
   font-size: 1.5vw;
   display: flex;
-  /* justify-content: center; */
+  justify-content: center;
   align-items: center;
   border-radius: 50px;
 
   img {
-    margin-right: 40px;
+    /* margin-right: 40px; */
+    position: relative;
+    left: -2vw;
+  }
+
+  span {
+    position: relative;
+    left: -1vw;
   }
 
   &:hover {

@@ -3,8 +3,11 @@ import { Navbar } from "../../components";
 import * as S from "./SchedulePage.style";
 import DaySchedule from "./components/DaySchedule";
 import SearchBox from "./components/SearchBox";
+import { useNavigate } from "react-router";
+import { FaMapMarkerAlt } from "react-icons/fa";
 
 function SchedulePage() {
+  const navigate = useNavigate();
   const [schedules, setSchedules] = useState([
     {
       day: "1",
@@ -70,7 +73,9 @@ function SchedulePage() {
             onScheduleUpdate={handleScheduleUpdate}
           />
         ))}
-        <button>생성</button>
+        <S.FloatingButton onClick={() => navigate("/map/1")}>
+          <FaMapMarkerAlt />
+        </S.FloatingButton>
       </S.ScheduleBox>
     </S.Container>
   );

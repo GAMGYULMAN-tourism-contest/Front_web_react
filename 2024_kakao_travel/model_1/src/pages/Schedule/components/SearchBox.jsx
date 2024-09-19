@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { CiSearch } from "react-icons/ci";
-// import { getSearchItems } from "../../../state/searches/searchesSlice";
-import { useSelector } from "react-redux";
+import { getSearchItems } from "../../../state/searches/searchesSlice";
+import { useDispatch, useSelector } from "react-redux";
 import { authInstance } from "../../../api/axiosInstance";
+import SearchResultBox from "./SearchResultBox";
 
 export const SearchBoxContainer = styled.div`
   width: 100%;
@@ -24,6 +25,7 @@ export const SearchBoxWrapper = styled.form`
 `;
 
 export const ResultBox = styled.div`
+  width: 100%;
   height: 75%;
   display: flex;
   flex-direction: column;
@@ -62,19 +64,17 @@ export const SearchIcon = styled(CiSearch)`
 
 const SearchBox = () => {
   const [searchKeyword, setSearchKeyword] = useState("");
-  const searchesState = useSelector((state) => state.searches);
-  console.log(searchesState);
-  const [searches, setSearches] = useState([]);
+  const dispatch = useDispatch();
 
-  async function getSearches({ keyword, page, size }) {
-    console.log(keyword, page, size);
-    let url = "/travels";
-    const apiResult = await authInstance.get(
-      url + "?page=" + page + "&size=" + size + "&keyword=" + keyword
-    );
-    console.log(apiResult);
-    setSearches(apiResult.data.result.item); // item, numOfRows, pageNo, totalcount 있음
-  }
+  // async function getSearches({ keyword, page, size }) {
+  //   console.log(keyword, page, size);
+  //   let url = "/travels";
+  //   const apiResult = await authInstance.get(
+  //     url + "?page=" + page + "&size=" + size + "&keyword=" + keyword
+  //   );
+  //   console.log(apiResult);
+  //   setSearches(apiResult.data.result.item); // item, numOfRows, pageNo, totalcount 있음
+  // }
 
   const handleSearchKeywordChange = (e) => {
     setSearchKeyword(e.target.value);
@@ -83,8 +83,8 @@ const SearchBox = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(searchKeyword);
-    // getSearchItems(searchKeyword, 1, 10);
-    getSearches({ keyword: searchKeyword, page: 1, size: 10 });
+    dispatch(getSearchItems({ keyword: searchKeyword, page: 1, size: 10 }));
+    // getSearches({ keyword: searchKeyword, page: 1, size: 10 });
   };
 
   return (
@@ -102,7 +102,7 @@ const SearchBox = () => {
         </SearchInputWrapper>
       </SearchBoxWrapper>
       <ResultBox>
-        <div>search results...</div>
+        <SearchResultBox></SearchResultBox>
       </ResultBox>
     </SearchBoxContainer>
   );

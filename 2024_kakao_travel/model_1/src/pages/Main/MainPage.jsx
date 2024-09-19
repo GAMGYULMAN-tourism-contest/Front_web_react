@@ -17,7 +17,7 @@ function MainPage() {
           }}
         >
           <S.TopLoginButtonImg src={Google} alt="Google" />
-          Continue with Google
+          <span>Continue with Google</span>
         </S.TopLoginButton>
         <S.MainFeatBox>
           <S.MainFeatItem onClick={() => navigate("/schedule/1")}>

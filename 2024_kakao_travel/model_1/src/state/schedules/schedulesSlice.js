@@ -10,7 +10,7 @@ export const getSchedules = createAsyncThunk(
 
 const initialState = {
   schedules: [],
-  
+  currentSchedule: null,
   getSchedulesStatus: "", // getSchedules API 호출 상태
 };
 
