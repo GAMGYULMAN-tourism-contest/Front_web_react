@@ -9,9 +9,14 @@ export const getSearchItems = createAsyncThunk(
   async ({ keyword, page, size }) => {
     console.log(keyword, page, size);
     let url = "/travels";
-    const apiResult = await authInstance.get(
+    console.log(
       url + "?page=" + page + "&size=" + size + "&keyword=" + keyword
     );
+    url += "?page=" + page + "&size=" + size;
+    if (keyword != undefined) {
+      url + "&keyword=" + keyword;
+    }
+    const apiResult = await authInstance.get(url);
     console.log(apiResult);
     return apiResult.data.result; // item, numOfRows, pageNo, totalcount 있음
   }

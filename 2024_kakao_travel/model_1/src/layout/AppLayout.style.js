@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 const AppContainer = styled.div`
-  width: calc(100vw - 17px);
+  width: calc(100vw);
   display: flex;
   flex-direction: column;
   align-items: center;

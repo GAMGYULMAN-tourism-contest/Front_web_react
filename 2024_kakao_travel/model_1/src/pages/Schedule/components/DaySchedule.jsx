@@ -1,43 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useDrag, useDrop } from "react-dnd";
-import styled, { keyframes } from "styled-components";
+import styled from "styled-components";
+import {
+  addDayEvent,
+  updateDayEvent,
+} from "../../../state/schedules/schedulesSlice"; // 경로를 실제 위치에 맞게 변경하세요
 import { ResizableBox } from "react-resizable";
+import DayScheduleSlide from "./DayScheduleSlide";
 
-// 애니메이션 정의
-const fadeInOut = keyframes`
-  0%, 100% {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1);
-  }
-`;
-
-// 공통 스타일 변수
-const commonBoxStyles = `
-  position: absolute;
-  box-sizing: border-box;
-  z-index: 1;
-  border-radius: 4px;
-`;
-
-const TimeDisplay = styled.div`
-  position: fixed;
-  top: ${({ top }) => `${top}px`};
-  left: ${({ left }) => `${left + 20}px`};
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-size: 14px;
-  opacity: ${({ visible }) => (visible ? 1 : 0)};
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  transform: ${({ visible }) => (visible ? "scale(1)" : "scale(0.8)")};
-  z-index: 1000;
-`;
-
+// Styled Components 정의
 const ScheduleContainer = styled.div`
   width: 40%;
   display: grid;
@@ -62,8 +34,9 @@ const HourText = styled.p`
 `;
 
 const DraggableScheduleCard = styled.div`
-  ${commonBoxStyles}
-  background-color: ${({ $isDragging }) => ($isDragging ? "lightgreen" : "#ffcc78")};
+  position: absolute;
+  background-color: ${({ $isDragging }) =>
+    $isDragging ? "lightgreen" : "#ffcc78"};
   color: white;
   cursor: move;
   width: 70%;
@@ -72,27 +45,8 @@ const DraggableScheduleCard = styled.div`
   height: ${({ $height }) => `${$height}px`};
   opacity: ${({ $isDragging }) => ($isDragging ? 0.5 : 1)};
   transition: height 0.3s ease;
-`;
-
-const ResizableCard = styled(ResizableBox)`
-  ${commonBoxStyles}
-  top: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #ffcc78;
-  transition: height 0.05s;
-`;
-
-const StyledResizeHandle = styled.div`
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background-color: #cdfffc;
-  bottom: 0;
-  right: 0;
-  cursor: se-resize;
+  z-index: ${({ $isDragging }) =>
+    $isDragging ? 0 : 1}; // 뒤로 드래그 가능하도록 함
 `;
 
 const ScheduleTitle = styled.div`
@@ -114,12 +68,6 @@ const parseTimeToHour = (time) => {
   return hours + minutes / 60;
 };
 
-const calculateDraggedTime = (top, blockHeight) => {
-  const hour = Math.floor(top / blockHeight);
-  const minutes = Math.round(((top % blockHeight) / blockHeight) * 60);
-  return `${hour}:${minutes < 10 ? "0" : ""}${minutes}`;
-};
-
 const calculateNewEndTime = (startTime, newHeight) => {
   const minutesAdded = newHeight;
   const [startHour, startMinutes] = startTime.split(":").map(Number);
@@ -132,88 +80,83 @@ const calculateNewEndTime = (startTime, newHeight) => {
 // DraggableScheduleCardComponent
 const DraggableScheduleCardComponent = ({
   schedule,
-  onResizeStop,
-  onResize,
   height,
   top,
-  children,
+  currentDay,
+  onResize,
+  onResizeStop,
 }) => {
   const [isResizing, setIsResizing] = useState(false);
-  const [draggedTime, setDraggedTime] = useState(null);
-  const [mousePosition, setMousePosition] = useState({ top: 0, left: 0 });
-  const [visible, setVisible] = useState(false);
-
-  // 드래그 상태와 마우스 위치 추적
+  const [tempHeight, setTempHeight] = useState(height); // 로컬 상태로 임시 높이 관리
   const [{ isDragging }, drag] = useDrag({
     type: "schedule",
-    item: { title: schedule.title, startTime: schedule.startTime },
+    item: {
+      title: schedule.title,
+      scheduleId: schedule.scheduleId,
+      currentDay,
+    },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
     canDrag: () => !isResizing,
   });
 
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (isDragging) {
-        setMousePosition({ top: e.clientY, left: e.clientX });
-        setDraggedTime(calculateDraggedTime(e.clientY, 60));
-        setVisible(true);
-      }
-    };
-
-    if (isDragging) {
-      document.addEventListener("mousemove", handleMouseMove);
-    } else {
-      setVisible(false);
+  // 클릭 핸들러 함수
+  const handleClick = (e) => {
+    if (!isDragging && !isResizing) {
+      // 드래그나 리사이즈 중이 아닐 때만 클릭 이벤트 처리
+      console.log("클릭");
     }
-
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-    };
-  }, [isDragging]);
+  };
 
   return (
-    <>
-      <DraggableScheduleCard
-        ref={drag}
-        $top={top}
-        $height={height}
-        $isDragging={isDragging}
+    <DraggableScheduleCard
+      ref={drag}
+      $top={top}
+      $height={tempHeight} // 임시 높이로 애니메이션 적용
+      $isDragging={isDragging}
+      onClick={() => handleClick()}
+    >
+      <ResizableBox
+        height={tempHeight} // 임시 높이로 애니메이션 적용
+        onResizeStart={() => setIsResizing(true)}
+        onResize={(e, data) => {
+          const newHeight = Math.round(data.size.height / 15) * 15;
+          setTempHeight(newHeight); // 실시간 높이 업데이트
+          onResize(e, data, schedule); // 필요에 따라 onResize 호출
+        }}
+        onResizeStop={(e, data) => {
+          setIsResizing(false);
+          setTempHeight(data.size.height); // 최종 높이 업데이트
+          onResizeStop(e, data, schedule);
+        }}
+        handle={
+          <div
+            style={{
+              position: "absolute",
+              width: "10px",
+              height: "10px",
+              backgroundColor: "#cdfffc",
+              bottom: "0",
+              right: "0",
+              cursor: "se-resize",
+            }}
+          />
+        }
       >
-        <ResizableCard
-          height={height}
-          onResizeStart={() => setIsResizing(true)}
-          onResize={onResize}
-          onResizeStop={(e, data) => {
-            setIsResizing(false);
-            onResizeStop(e, data);
-          }}
-          handle={<StyledResizeHandle />}
-        >
-          {children}
-        </ResizableCard>
-      </DraggableScheduleCard>
-      {draggedTime && (
-        <TimeDisplay
-          top={mousePosition.top}
-          left={mousePosition.left}
-          visible={visible}
-        >
-          {draggedTime}
-        </TimeDisplay>
-      )}
-    </>
+        <ScheduleTitle>{schedule.title}</ScheduleTitle>
+      </ResizableBox>
+    </DraggableScheduleCard>
   );
 };
 
 // HourBlockComponent
-const HourBlockComponent = ({ hour, children, onDrop }) => {
+const HourBlockComponent = ({ hour, day, children, onDrop }) => {
   const [{ isOver }, drop] = useDrop({
     accept: ["schedule", "searchItem"],
     drop: (item) => {
       const newStartTime = `${hour}:00`;
-      onDrop(item.title, newStartTime);
+      onDrop(item.title, newStartTime, day);
     },
     collect: (monitor) => ({
       isOver: monitor.isOver(),
@@ -230,96 +173,112 @@ const HourBlockComponent = ({ hour, children, onDrop }) => {
   );
 };
 
-// DaySchedule
-const DaySchedule = ({ day, scheduleList = [], onScheduleUpdate }) => {
-  const hours = Array.from({ length: 24 }, (_, index) => index); // 0 ~ 23
+// DaySchedule 컴포넌트
+const DaySchedule = ({ day }) => {
+  const dispatch = useDispatch();
+  const schedules = useSelector((state) => state.schedules.schedules);
+  const dayData = schedules.find((schedule) => schedule.day == day);
+  const events = dayData ? dayData.events : [];
 
-  const handleDrop = (title, newStartTime) => {
-    const schedule = scheduleList.find((s) => s.title === title);
+  const handleDrop = (title, newStartTime, newDay) => {
+    const existingEvent = events.find((event) => event.title === title);
 
-    if (schedule) {
+    if (existingEvent) {
+      // 기존 이벤트의 지속 시간을 계산
       const duration =
-        parseTimeToHour(schedule.endTime) - parseTimeToHour(schedule.startTime);
+        parseTimeToHour(existingEvent.endTime) -
+        parseTimeToHour(existingEvent.startTime);
+
+      // 기존 이벤트의 지속 시간을 사용하여 새로운 종료 시간을 계산
       const newEndTime = calculateNewEndTime(newStartTime, duration * 60);
 
-      const updatedSchedule = {
-        ...schedule,
+      const updatedEvent = {
+        ...existingEvent,
         startTime: newStartTime,
         endTime: newEndTime,
       };
 
-      onScheduleUpdate(updatedSchedule);
+      dispatch(updateDayEvent({ day: newDay, updatedEvent, originDay: day }));
     } else {
-      const newEndTime = calculateNewEndTime(newStartTime, 60); // 1시간짜리 일정 생성
-      const newSchedule = {
-        title,
+      // 새로운 이벤트 생성 시 기본 지속 시간을 1시간으로 설정
+      const newEndTime = calculateNewEndTime(newStartTime, 60);
+      const newEvent = {
+        scheduleId: `schedule-${Date.now()}`,
         startTime: newStartTime,
         endTime: newEndTime,
-        scheduleId: `schedule-${Date.now()}`, // 고유 ID 생성
+        title,
       };
 
-      onScheduleUpdate(newSchedule);
+      dispatch(addDayEvent({ day: newDay, newEvent }));
     }
   };
 
+  const handleResize = (e, data, schedule) => {
+    // 리사이징 중인 동안 실시간으로 높이만 업데이트합니다.
+    const newHeight = Math.round(data.size.height / 15) * 15;
+    const top = parseTimeToHour(schedule.startTime) * 60;
+
+    // 리사이징 동안 높이를 로컬 상태로만 업데이트하므로 리덕스 상태 변경 없음
+  };
+
+  const handleResizeStop = (e, data, schedule) => {
+    // 리사이즈가 끝난 후 종료 시간을 계산하고 상태를 업데이트합니다.
+    const newHeight = Math.round(data.size.height / 15) * 15;
+    const newEndTime = calculateNewEndTime(schedule.startTime, newHeight);
+    const updatedEvent = { ...schedule, endTime: newEndTime }; // 업데이트된 스케줄 생성
+
+    // 리사이즈가 끝난 후 상태 업데이트
+    dispatch(updateDayEvent({ day: day, updatedEvent }));
+  };
+
+  // 각 이벤트를 시간별로 그룹화하여 메모이제이션
+  const eventsByHour = useMemo(() => {
+    const groupedEvents = {};
+    events.forEach((event) => {
+      const scheduleStartHour = Math.floor(parseTimeToHour(event.startTime));
+      if (!groupedEvents[scheduleStartHour]) {
+        groupedEvents[scheduleStartHour] = [];
+      }
+      groupedEvents[scheduleStartHour].push(event);
+    });
+    return groupedEvents;
+  }, [events]);
+
   return (
     <ScheduleContainer>
-      {hours.map((hour) => (
+      {Array.from({ length: 24 }, (_, index) => (
         <HourBlockComponent
-          key={`${day}-${hour}`}
-          hour={hour}
+          key={`${day}-${index}`}
+          hour={index}
           onDrop={handleDrop}
+          day={day}
         >
-          {renderScheduleForHour(hour, scheduleList, onScheduleUpdate)}
+          {eventsByHour[index] &&
+            eventsByHour[index].map((event) => {
+              const scheduleStart = parseTimeToHour(event.startTime);
+              const scheduleEnd = parseTimeToHour(event.endTime);
+              const top = (scheduleStart - index) * 60;
+              const initialHeight = (scheduleEnd - scheduleStart) * 60;
+
+              return (
+                <DraggableScheduleCardComponent
+                  key={event.scheduleId}
+                  schedule={event}
+                  height={initialHeight}
+                  top={top}
+                  currentDay={day}
+                  onResize={handleResize}
+                  onResizeStop={handleResizeStop}
+                >
+                  <ScheduleTitle>{event.title}</ScheduleTitle>
+                </DraggableScheduleCardComponent>
+              );
+            })}
         </HourBlockComponent>
       ))}
+      <DayScheduleSlide></DayScheduleSlide>
     </ScheduleContainer>
   );
-};
-
-// 렌더링 함수
-const renderScheduleForHour = (hour, scheduleList, onScheduleUpdate) => {
-  return scheduleList.map((schedule) => {
-    const scheduleStart = parseTimeToHour(schedule.startTime);
-    const scheduleEnd = parseTimeToHour(schedule.endTime);
-
-    if (scheduleStart >= hour && scheduleStart < hour + 1) {
-      const top = (scheduleStart - hour) * 60;
-      const initialHeight = (scheduleEnd - scheduleStart) * 60;
-
-      return (
-        <DraggableScheduleCardComponent
-          key={schedule.scheduleId}
-          schedule={schedule}
-          height={initialHeight}
-          top={top}
-          onResize={(e, data) =>
-            handleResize(e, data, schedule, onScheduleUpdate)
-          }
-          onResizeStop={(e, data) =>
-            handleResizeStop(e, data, schedule, onScheduleUpdate)
-          }
-        >
-          <ScheduleTitle>{schedule.title}</ScheduleTitle>
-        </DraggableScheduleCardComponent>
-      );
-    }
-    return null;
-  });
-};
-
-const handleResize = (e, data, schedule, onScheduleUpdate) => {
-  const newHeight = Math.round(data.size.height / 15) * 15;
-  const newEndTime = calculateNewEndTime(schedule.startTime, newHeight);
-  const updatedSchedule = { ...schedule, endTime: newEndTime };
-  onScheduleUpdate(updatedSchedule);
-};
-const handleResizeStop = (e, data, schedule, onScheduleUpdate) => {
-  const newHeight = Math.round(data.size.height / 15) * 15; // 리사이즈된 높이 계산
-  const newEndTime = calculateNewEndTime(schedule.startTime, newHeight); // 새로운 종료 시간 계산
-  const updatedSchedule = { ...schedule, endTime: newEndTime }; // 업데이트된 스케줄 생성
-
-  onScheduleUpdate(updatedSchedule); // 스케줄 업데이트
 };
 
 export default DaySchedule;
