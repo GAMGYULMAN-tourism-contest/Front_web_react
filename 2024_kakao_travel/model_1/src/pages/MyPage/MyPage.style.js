@@ -47,7 +47,7 @@ const SchedulesBox = styled.div`
 
 const TopBox = styled.div`
   width: 90%;
-  height: 30%;
+  height: 25%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -57,11 +57,19 @@ const MainBox = styled.div`
   width: 90%;
   height: 70%;
   display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  gap: 20px;
+  justify-content: center;
+  align-items: center;
   border: 1px solid black;
   background-color: #f9eead;
+  font-size: 13px;
+`;
+const MainBoxInner = styled.div`
+  width: 90%;
+  height: 90%;
+  display: flex;
+  flex-wrap: wrap;
+  overflow-y: auto;
+  gap: 20px;
 `;
 
-export { Container, SchedulesBox, TopBox, MainBox };
+export { Container, SchedulesBox, TopBox, MainBox, MainBoxInner };

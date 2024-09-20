@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, current } from "@reduxjs/toolkit";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 // 비동기 서버 통신 함수
@@ -13,13 +13,13 @@ const initialState = {
       day: "1",
       events: [
         {
-          scheduleId: "1",
+          id: "1",
           startTime: "6:00",
           endTime: "9:15",
           title: "Morning Exercise",
         },
         {
-          scheduleId: "2",
+          id: "2",
           startTime: "10:00",
           endTime: "11:00",
           title: "Team Meeting",
@@ -30,13 +30,13 @@ const initialState = {
       day: "2",
       events: [
         {
-          scheduleId: "3",
+          id: "3",
           startTime: "8:00",
           endTime: "9:00",
           title: "Breakfast",
         },
         {
-          scheduleId: "4",
+          id: "4",
           startTime: "12:00",
           endTime: "13:00",
           title: "Lunch",
@@ -45,6 +45,8 @@ const initialState = {
     },
   ],
   currentSchedule: null,
+  eventDetailOpen: false,
+  currentEvent: {},
   getSchedulesStatus: "", // getSchedules API 호출 상태
 };
 
@@ -124,6 +126,15 @@ const schedulesSlice = createSlice({
         state.schedules.push({ day, events: [updatedEvent] });
       }
     },
+
+    deleteDayEvent: (state, action) => {},
+    setCurrentSchedule: (state, action) => {},
+    setEventDetailOpen: (state, action) => {
+      state.eventDetailOpen = action.payload;
+    },
+    setCurrentEvent: (state, action) => {
+      state.currentEvent = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(getSchedules.pending, (state) => {
@@ -141,5 +152,12 @@ const schedulesSlice = createSlice({
   },
 });
 
-export const { addDayEvent, updateDayEvent } = schedulesSlice.actions;
+export const {
+  addDayEvent,
+  updateDayEvent,
+  deleteDayEvent,
+  setCurrentSchedule,
+  setEventDetailOpen,
+  setCurrentEvent,
+} = schedulesSlice.actions;
 export default schedulesSlice.reducer;

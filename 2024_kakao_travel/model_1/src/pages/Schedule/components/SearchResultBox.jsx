@@ -41,16 +41,21 @@ const PlaceBox = styled.div`
   padding: 15px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 20px;
 `;
 
 const PlaceDetails = styled.div`
+  /* width: 80%; */
   flex: 1;
   border: 1px solid #eaeaea;
   background-color: #eaeaea;
   padding: 10px;
   cursor: move; /* 드래그 가능한 커서 */
   opacity: ${({ isDragging }) => (isDragging ? 0.5 : 1)};
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 `;
 
 const PlaceTitle = styled.h2`

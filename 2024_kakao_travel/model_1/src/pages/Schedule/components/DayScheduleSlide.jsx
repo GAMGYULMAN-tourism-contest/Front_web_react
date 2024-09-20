@@ -1,5 +1,13 @@
 import React, { useState } from "react";
 import styled, { keyframes, css } from "styled-components";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  addDayEvent,
+  updateDayEvent,
+  deleteDayEvent,
+  setCurrentSchedule,
+  setEventDetailOpen,
+} from "../../../state/schedules/schedulesSlice";
 
 // 애니메이션 정의: 오른쪽에서 나오는 애니메이션
 const slideInFromRight = keyframes`
@@ -22,13 +30,14 @@ const slideOutToRight = keyframes`
 const Container = styled.div`
   width: 50vw;
   height: 100vh;
-  background-color: #ffcc78;
-  color: white;
+  background-color: #ffe8b4;
+  color: black;
   display: flex;
+  /* flex-direction: column; */
   align-items: center;
   justify-content: center;
   position: fixed; /* 고정된 위치 */
-  right: 17px; /* 오른쪽 끝에 붙임 */
+  right: 0px;
   top: 10%;
   /* transform: translateY(-50%); */
   border: 1px solid black;
@@ -36,10 +45,10 @@ const Container = styled.div`
   ${({ $isVisible }) =>
     $isVisible
       ? css`
-          animation: ${slideInFromRight} 0.4s ease-out forwards;
+          animation: ${slideInFromRight} 0.2s ease-out forwards;
         `
       : css`
-          animation: ${slideOutToRight} 1s ease-out forwards;
+          animation: ${slideOutToRight} 0.2s ease-out forwards;
         `}
   z-index: 10;
 `;
@@ -47,33 +56,87 @@ const Container = styled.div`
 const MinButton = styled.button`
   position: absolute;
   top: 10px;
-  right: 10px;
+  left: 10px;
   font-size: 24px;
   cursor: pointer;
   padding: 10px;
 `;
 
+const MainBox = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: -10vh;
+  gap: 25px;
+`;
+
+const TitleBox = styled.div`
+  width: 70%;
+  height: 10%;
+  border: 1px solid black;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffcc78;
+`;
+const DurationBox = styled.div`
+  width: 70%;
+  height: 10%;
+  border: 1px solid black;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffcc78;
+`;
+const DescriptionBox = styled.div`
+  width: 70%;
+  height: 40%;
+  border: 1px solid black;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffcc78;
+`;
+
 function DayScheduleSlide() {
-  const [showComponent, setShowComponent] = useState(true); // 전역 상태로 관리
+  const { eventDetailOpen } = useSelector((state) => state.schedules);
+  // const [showComponent, setShowComponent] = useState(true); // 전역 상태로 관리
+  console.log(eventDetailOpen);
+  const dispatch = useDispatch();
+
+  // 애니메이션 완료 후 DOM에서 요소 제거
+  const handleAnimationEnd = (isOpen) => {
+    dispatch(setEventDetailOpen(false)); // 슬라이드 아웃 애니메이션이 끝난 후 요소 숨김
+  };
 
   return (
     <div>
-      {showComponent && (
-        <Container $isVisible={showComponent}>
-          <MinButton onClick={() => setShowComponent(false)}>
-            {" "}
-            {">>"}{" "}
-          </MinButton>
-          <div>
-            <div>
-              <h1>제목</h1>
-            </div>
-            <div>
-              <div></div>
-            </div>
-          </div>
-        </Container>
-      )}
+      <Container
+        $isVisible={eventDetailOpen}
+        // onAnimationEnd={()=>handleAnimationEnd(eventDetailOpen)}
+      >
+        <MinButton onClick={() => dispatch(setEventDetailOpen(false))}>
+          {" "}
+          {">>"}{" "}
+        </MinButton>
+        <MainBox>
+          <TitleBox>
+            <h1>제목</h1>
+          </TitleBox>
+          <DurationBox>
+            <span>몇시부터 몇시까지</span>
+          </DurationBox>
+          <DescriptionBox>
+            <span>내용내용</span>
+          </DescriptionBox>
+        </MainBox>
+      </Container>
     </div>
   );
 }

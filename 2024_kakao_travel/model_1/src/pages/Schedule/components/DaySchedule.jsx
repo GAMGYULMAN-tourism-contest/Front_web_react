@@ -5,6 +5,8 @@ import styled from "styled-components";
 import {
   addDayEvent,
   updateDayEvent,
+  setEventDetailOpen,
+  setCurrentEvent,
 } from "../../../state/schedules/schedulesSlice"; // 경로를 실제 위치에 맞게 변경하세요
 import { ResizableBox } from "react-resizable";
 import DayScheduleSlide from "./DayScheduleSlide";
@@ -23,7 +25,7 @@ const HourBlock = styled.div`
   border: 1px solid #ccc;
   position: relative;
   height: 60px;
-  background-color: ${({ $isOver }) => ($isOver ? "#777777" : "#cdcdcdb8")};
+  background-color: ${({ $isOver }) => ($isOver ? "#777777" : "#ffeebcb8")};
 `;
 
 const HourText = styled.p`
@@ -92,7 +94,7 @@ const DraggableScheduleCardComponent = ({
     type: "schedule",
     item: {
       title: schedule.title,
-      scheduleId: schedule.scheduleId,
+      id: schedule.id,
       currentDay,
     },
     collect: (monitor) => ({
@@ -100,12 +102,15 @@ const DraggableScheduleCardComponent = ({
     }),
     canDrag: () => !isResizing,
   });
+  const dispatch = useDispatch();
 
   // 클릭 핸들러 함수
   const handleClick = (e) => {
     if (!isDragging && !isResizing) {
       // 드래그나 리사이즈 중이 아닐 때만 클릭 이벤트 처리
       console.log("클릭");
+      dispatch(setEventDetailOpen(true));
+      // TODO: dispatch(setCurrentEvent(e. ...))
     }
   };
 
@@ -203,7 +208,7 @@ const DaySchedule = ({ day }) => {
       // 새로운 이벤트 생성 시 기본 지속 시간을 1시간으로 설정
       const newEndTime = calculateNewEndTime(newStartTime, 60);
       const newEvent = {
-        scheduleId: `schedule-${Date.now()}`,
+        id: `schedule-${Date.now()}`,
         startTime: newStartTime,
         endTime: newEndTime,
         title,
@@ -262,7 +267,7 @@ const DaySchedule = ({ day }) => {
 
               return (
                 <DraggableScheduleCardComponent
-                  key={event.scheduleId}
+                  key={event.id}
                   schedule={event}
                   height={initialHeight}
                   top={top}
