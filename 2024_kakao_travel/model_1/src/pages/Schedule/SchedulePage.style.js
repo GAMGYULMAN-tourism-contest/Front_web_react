@@ -34,4 +34,21 @@ const FloatingButton = styled.button`
   background-color: #ffbd49;
 `;
 
-export { Container, MenuBox, ScheduleBox, FloatingButton };
+const FloatingSave = styled.button`
+  width: 80px;
+  height: 80px;
+  position: fixed;
+  bottom: calc(12vh + 20px);
+  right: 40px;
+  background-color: #4caf50;
+  color: white;
+  padding: 20px 20px;
+  border: none;
+  cursor: pointer;
+  z-index: 20;
+  border-radius: 50%;
+  font-size: 38px;
+  background-color: #4caf50;
+`;
+
+export { Container, MenuBox, ScheduleBox, FloatingButton, FloatingSave };

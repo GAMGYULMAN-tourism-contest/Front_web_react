@@ -51,6 +51,11 @@ export const SearchBoxWrapper = styled.form`
   flex-direction: column;
   align-items: center;
   background-color: #ffbd49;
+
+  h1 {
+    position: relative;
+    top: 2vh;
+  }
 `;
 
 export const ResultBox = styled.div`
@@ -70,17 +75,17 @@ export const SearchInputWrapper = styled.div`
 `;
 
 export const SearchInput = styled.input`
-  width: 80%;
-  height: 44%;
+  width: 75%;
+  height: 60px;
   border: none;
   font-size: 18px;
   outline: none;
-  padding: 5px 25px;
+  /* padding: 5px 25px; */
 `;
 
 export const SearchButton = styled.button`
-  width: 20%;
-  height: 56%;
+  width: 15%;
+  height: 62px;
   border: none;
   background-color: white;
 `;
@@ -89,6 +94,8 @@ export const SearchIcon = styled(CiSearch)`
   border: none;
   font-size: 32px;
   cursor: pointer;
+  position: relative;
+  top: 1px;
 `;
 
 const SearchBox = () => {

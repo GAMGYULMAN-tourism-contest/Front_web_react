@@ -10,6 +10,8 @@ import {
 } from "../../../state/schedules/schedulesSlice"; // 경로를 실제 위치에 맞게 변경하세요
 import { ResizableBox } from "react-resizable";
 import DayScheduleSlide from "./DayScheduleSlide";
+import { IoIosAddCircleOutline } from "react-icons/io";
+import { IoIosCloseCircleOutline } from "react-icons/io";
 
 // Styled Components 정의
 const ScheduleContainer = styled.div`
@@ -51,16 +53,25 @@ const DraggableScheduleCard = styled.div`
     $isDragging ? 0 : 1}; // 뒤로 드래그 가능하도록 함
 `;
 
+// const MyResizableBox = styled(ResizableBox)`
+//   width: 90%;
+//   height: 90%;
+
+// `;
+
 const ScheduleTitle = styled.div`
   position: absolute;
   top: 0;
-  left: 0;
+  left: 5%;
   right: 0;
+  width: 90%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: none;
+  word-break: keep-all;
+  text-align: center;
 `;
 
 // 유틸리티 함수
@@ -105,12 +116,12 @@ const DraggableScheduleCardComponent = ({
   const dispatch = useDispatch();
 
   // 클릭 핸들러 함수
-  const handleClick = (e) => {
+  const handleClick = (event) => {
     if (!isDragging && !isResizing) {
       // 드래그나 리사이즈 중이 아닐 때만 클릭 이벤트 처리
-      console.log("클릭");
+      console.log(event);
       dispatch(setEventDetailOpen(true));
-      // TODO: dispatch(setCurrentEvent(e. ...))
+      dispatch(setCurrentEvent(event));
     }
   };
 
@@ -120,7 +131,7 @@ const DraggableScheduleCardComponent = ({
       $top={top}
       $height={tempHeight} // 임시 높이로 애니메이션 적용
       $isDragging={isDragging}
-      onClick={() => handleClick()}
+      onClick={() => handleClick(schedule)}
     >
       <ResizableBox
         height={tempHeight} // 임시 높이로 애니메이션 적용
@@ -161,7 +172,7 @@ const HourBlockComponent = ({ hour, day, children, onDrop }) => {
     accept: ["schedule", "searchItem"],
     drop: (item) => {
       const newStartTime = `${hour}:00`;
-      onDrop(item.title, newStartTime, day);
+      onDrop(item.id, item.title, newStartTime, day);
     },
     collect: (monitor) => ({
       isOver: monitor.isOver(),
@@ -170,9 +181,14 @@ const HourBlockComponent = ({ hour, day, children, onDrop }) => {
 
   return (
     <HourBlock ref={drop} $isOver={isOver}>
-      <HourText>
-        {hour}:00 - {hour + 1}:00
-      </HourText>
+      <div>
+        <HourText>
+          {hour}:00 - {hour + 1}:00
+        </HourText>
+        <button>
+          <IoIosAddCircleOutline />
+        </button>
+      </div>
       {children}
     </HourBlock>
   );
@@ -184,18 +200,39 @@ const DaySchedule = ({ day }) => {
   const schedules = useSelector((state) => state.schedules.schedules);
   const dayData = schedules.find((schedule) => schedule.day == day);
   const events = dayData ? dayData.events : [];
+  console.log(schedules, dayData, events);
 
-  const handleDrop = (title, newStartTime, newDay) => {
-    const existingEvent = events.find((event) => event.title === title);
+  const handleDrop = (id, title, newStartTime, newDay) => {
+    const existingEvent = events.find((event) => event.id === id);
 
     if (existingEvent) {
       // 기존 이벤트의 지속 시간을 계산
       const duration =
         parseTimeToHour(existingEvent.endTime) -
         parseTimeToHour(existingEvent.startTime);
-
       // 기존 이벤트의 지속 시간을 사용하여 새로운 종료 시간을 계산
       const newEndTime = calculateNewEndTime(newStartTime, duration * 60);
+
+      // 새로운 시간대에 다른 이벤트가 있는지 확인
+      const isOverlap = events.some((event) => {
+        const eventStart = parseTimeToHour(event.startTime);
+        const eventEnd = parseTimeToHour(event.endTime);
+        const newStart = parseTimeToHour(newStartTime);
+        const newEnd = parseTimeToHour(newEndTime);
+
+        // 새로운 시간대가 기존 이벤트의 시간대와 겹치는지 검사
+        return (
+          (newStart >= eventStart && newStart < eventEnd) || // 새로운 이벤트의 시작 시간이 기존 이벤트 시간 내에 있는지
+          (newEnd > eventStart && newEnd <= eventEnd) || // 새로운 이벤트의 종료 시간이 기존 이벤트 시간 내에 있는지
+          (newStart <= eventStart && newEnd >= eventEnd) // 새로운 이벤트가 기존 이벤트를 포함하는지
+        );
+      });
+
+      if (isOverlap) {
+        // 겹치는 이벤트가 있으면 아무런 작업도 하지 않음
+        console.log("이 시간대에 이미 다른 이벤트가 있습니다.");
+        return;
+      }
 
       const updatedEvent = {
         ...existingEvent,
@@ -207,6 +244,27 @@ const DaySchedule = ({ day }) => {
     } else {
       // 새로운 이벤트 생성 시 기본 지속 시간을 1시간으로 설정
       const newEndTime = calculateNewEndTime(newStartTime, 60);
+
+      // 새로운 시간대에 다른 이벤트가 있는지 확인
+      const isOverlap = events.some((event) => {
+        const eventStart = parseTimeToHour(event.startTime);
+        const eventEnd = parseTimeToHour(event.endTime);
+        const newStart = parseTimeToHour(newStartTime);
+        const newEnd = parseTimeToHour(newEndTime);
+
+        return (
+          (newStart >= eventStart && newStart < eventEnd) ||
+          (newEnd > eventStart && newEnd <= eventEnd) ||
+          (newStart <= eventStart && newEnd >= eventEnd)
+        );
+      });
+
+      if (isOverlap) {
+        // 겹치는 이벤트가 있으면 아무런 작업도 하지 않음
+        console.log("이 시간대에 이미 다른 이벤트가 있습니다.");
+        return;
+      }
+
       const newEvent = {
         id: `schedule-${Date.now()}`,
         startTime: newStartTime,
@@ -233,7 +291,7 @@ const DaySchedule = ({ day }) => {
     const updatedEvent = { ...schedule, endTime: newEndTime }; // 업데이트된 스케줄 생성
 
     // 리사이즈가 끝난 후 상태 업데이트
-    dispatch(updateDayEvent({ day: day, updatedEvent }));
+    dispatch(updateDayEvent({ day: day, updatedEvent, originDay: day }));
   };
 
   // 각 이벤트를 시간별로 그룹화하여 메모이제이션
@@ -251,6 +309,9 @@ const DaySchedule = ({ day }) => {
 
   return (
     <ScheduleContainer>
+      <button>
+        <IoIosCloseCircleOutline />
+      </button>
       {Array.from({ length: 24 }, (_, index) => (
         <HourBlockComponent
           key={`${day}-${index}`}

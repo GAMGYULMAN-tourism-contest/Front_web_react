@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import * as S from "./MyPage.style";
 import ScheduleBlock from "./components/ScheduleBlock";
+import { authInstance } from "../../api/axiosInstance";
+import { getSchedules } from "../../state/schedules/schedulesSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 const dataItems = [
   {
@@ -70,6 +73,18 @@ const dataItems = [
 ];
 
 function MyPage() {
+  const [mySchedules, setMySchedules] = useState([]);
+  const [invitedSchedules, setInvitedSchedules] = useState([]);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    async function getMySchedules() {
+      const response = await authInstance.get("/schedules/members");
+      setMySchedules(response.data.result.list);
+    }
+
+    getMySchedules();
+  }, []);
+
   return (
     <S.Container>
       <S.SchedulesBox>
@@ -78,7 +93,7 @@ function MyPage() {
         </S.TopBox>
         <S.MainBox>
           <S.MainBoxInner>
-            {dataItems.map((item) => {
+            {mySchedules.map((item) => {
               return (
                 <ScheduleBlock
                   key={item.id}
@@ -88,6 +103,7 @@ function MyPage() {
                   period={item.period}
                   startDate={item.startDate}
                   endDate={item.endDate}
+                  // onclick(내비게이트 + 그 스케줄 상세 정보 가져오기)은 ScheduleBlock 컴포넌트에서 구성함
                 />
               );
             })}

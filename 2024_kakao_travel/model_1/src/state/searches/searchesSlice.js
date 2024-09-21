@@ -9,15 +9,11 @@ export const getSearchItems = createAsyncThunk(
   async ({ keyword, page, size }) => {
     console.log(keyword, page, size);
     let url = "/travels";
-    console.log(
-      url + "?page=" + page + "&size=" + size + "&keyword=" + keyword
-    );
     url += "?page=" + page + "&size=" + size;
-    if (keyword != undefined) {
-      url + "&keyword=" + keyword;
+    if (keyword !== undefined) {
+      url += "&keyword=" + keyword;
     }
     const apiResult = await authInstance.get(url);
-    console.log(apiResult);
     return apiResult.data.result; // item, numOfRows, pageNo, totalcount 있음
   }
 );
@@ -39,7 +35,7 @@ const searchesSlice = createSlice({
 
     // 프로미스 성공 (fulfilled) 시점
     builder.addCase(getSearchItems.fulfilled, (state, action) => {
-      console.log(action.payload);
+      // console.log(action.payload);
       state.searches = action.payload.item;
       state.getSearchItemsStatus = "fulfilled";
     });

@@ -1,52 +1,45 @@
 import { createSlice, current } from "@reduxjs/toolkit";
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import { authInstance } from "../../api/axiosInstance";
 
 // 비동기 서버 통신 함수
 export const getSchedules = createAsyncThunk(
-  "schedules/getSchedules"
-  // TODO: async api get method
+  "schedules/getSchedules",
+  async function getMySchedules(scheduleId) {
+    const res = await authInstance.get("/schedules/" + scheduleId);
+    console.log(res.data.result);
+    return res.data.result.dayEvents;
+  }
 );
 
 const initialState = {
   schedules: [
+    // 사실상 dayEvents
     {
-      day: "1",
-      events: [
-        {
-          id: "1",
-          startTime: "6:00",
-          endTime: "9:15",
-          title: "Morning Exercise",
-        },
-        {
-          id: "2",
-          startTime: "10:00",
-          endTime: "11:00",
-          title: "Team Meeting",
-        },
-      ],
+      id: 45,
+      day: 1,
+      date: "2024-09-19",
+      events: [],
     },
     {
-      day: "2",
+      id: 46,
+      day: 2,
+      date: "2024-09-20",
       events: [
         {
-          id: "3",
-          startTime: "8:00",
-          endTime: "9:00",
-          title: "Breakfast",
-        },
-        {
-          id: "4",
-          startTime: "12:00",
-          endTime: "13:00",
-          title: "Lunch",
+          id: 2,
+          title: "제목입니다.",
+          description: "내용입니다.",
+          startTime: "09:00",
+          endTime: "10:00",
         },
       ],
     },
   ],
   currentSchedule: null,
   eventDetailOpen: false,
-  currentEvent: {},
+  makeModalOpen: false,
+  currentEvent: null,
   getSchedulesStatus: "", // getSchedules API 호출 상태
 };
 
@@ -77,17 +70,15 @@ const schedulesSlice = createSlice({
       }
     },
     updateDayEvent: (state, action) => {
-      const { day, updatedEvent } = action.payload;
-
-      // 현재 이벤트가 속한 날짜를 찾아 제거, 만약 날짜가 변경된 경우만 제거
+      const { day, updatedEvent, originDay } = action.payload;
+      // 원래 이벤트가 속한 날짜에서 제거 (날짜가 변경된 경우만)
       state.schedules.forEach((scheduleDay) => {
-        if (String(scheduleDay.day) !== String(day)) {
-          // 현재 날짜와 다른 날짜에서 제거
+        if (String(scheduleDay.day) === String(originDay)) {
+          // 원래 날짜에서 이벤트 제거
           const eventIndex = scheduleDay.events.findIndex(
             (event) => event.scheduleId === updatedEvent.scheduleId
           );
 
-          // 이벤트가 있는 경우 제거
           if (eventIndex > -1) {
             scheduleDay.events.splice(eventIndex, 1);
           }
@@ -127,13 +118,22 @@ const schedulesSlice = createSlice({
       }
     },
 
+    modifyDayEvent: (state, action) => {},
     deleteDayEvent: (state, action) => {},
-    setCurrentSchedule: (state, action) => {},
+    setCurrentSchedule: (state, action) => {
+      state.currentSchedule = action.payload;
+    },
     setEventDetailOpen: (state, action) => {
       state.eventDetailOpen = action.payload;
     },
     setCurrentEvent: (state, action) => {
       state.currentEvent = action.payload;
+    },
+    setSchedules: (state, action) => {
+      state.schedules = action.payload;
+    },
+    setMakeModalOpen: (state, action) => {
+      state.makeModalOpen = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -155,9 +155,12 @@ const schedulesSlice = createSlice({
 export const {
   addDayEvent,
   updateDayEvent,
+  modifyDayEvent,
   deleteDayEvent,
   setCurrentSchedule,
   setEventDetailOpen,
   setCurrentEvent,
+  setSchedules,
+  setMakeModalOpen,
 } = schedulesSlice.actions;
 export default schedulesSlice.reducer;

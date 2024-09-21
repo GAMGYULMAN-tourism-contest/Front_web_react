@@ -7,71 +7,26 @@ import { useNavigate } from "react-router";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { getSearchItems } from "../../state/searches/searchesSlice";
+import MakeModal from "./components/MakeModal";
+import { IoIosSave } from "react-icons/io";
 
 function SchedulePage() {
   const navigate = useNavigate();
-  // const [schedules, setSchedules] = useState([
-  //   {
-  //     day: "1",
-  //     schedules: [
-  //       {
-  //         scheduleId: "1",
-  //         startTime: "6:00",
-  //         endTime: "9:15",
-  //         title: "Morning Exercise",
-  //       },
-  //       {
-  //         scheduleId: "2",
-  //         startTime: "10:00",
-  //         endTime: "11:00",
-  //         title: "Team Meeting",
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     day: "2",
-  //     schedules: [
-  //       {
-  //         scheduleId: "3",
-  //         startTime: "8:00",
-  //         endTime: "9:00",
-  //         title: "Breakfast",
-  //       },
-  //       {
-  //         scheduleId: "4",
-  //         startTime: "12:00",
-  //         endTime: "13:00",
-  //         title: "Lunch",
-  //       },
-  //     ],
-  //   },
-  // ]);
-
-  // 스케줄 업데이트 함수
-  // const handleScheduleUpdate = (updatedSchedule) => {
-  //   setSchedules((prevSchedules) =>
-  //     prevSchedules.map((daySchedule) => ({
-  //       ...daySchedule,
-  //       schedules: daySchedule.schedules.map((schedule) =>
-  //         schedule.scheduleId === updatedSchedule.scheduleId
-  //           ? updatedSchedule
-  //           : schedule
-  //       ),
-  //     }))
-  //   );
-  // };
-
-  // console.log(schedules);
   const data = useSelector((state) => state.schedules.schedules);
   console.log(data);
 
   const dispatch = useDispatch();
+
+  const handleSaveClick = () => {
+    //TODO: 스케줄 수정 api, reqData 중 dayEvents만 = schedules.schedules로 바꿔서 실행
+  };
 
   useEffect(() => {
     dispatch(getSearchItems({ page: 1, size: 10 }));
   }, []);
   return (
     <S.Container>
+      <MakeModal></MakeModal>
       <S.MenuBox>
         <SearchBox />
       </S.MenuBox>
@@ -87,6 +42,9 @@ function SchedulePage() {
         <S.FloatingButton onClick={() => navigate("/map/1")}>
           <FaMapMarkerAlt />
         </S.FloatingButton>
+        <S.FloatingSave onClick={() => handleSaveClick()}>
+          <IoIosSave />
+        </S.FloatingSave>
       </S.ScheduleBox>
     </S.Container>
   );

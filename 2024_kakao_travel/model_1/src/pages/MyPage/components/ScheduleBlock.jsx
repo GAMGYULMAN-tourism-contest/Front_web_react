@@ -1,6 +1,13 @@
 import React from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router";
+import {
+  getSchedules,
+  setSchedules,
+  setCurrentSchedule,
+} from "../../../state/schedules/schedulesSlice";
+import { useDispatch } from "react-redux";
+import { authInstance } from "../../../api/axiosInstance";
 
 const Container = styled.div`
   width: 43%;
@@ -28,11 +35,20 @@ const Container = styled.div`
 
 function ScheduleBlock({ id, title, description, period, startDate, endDate }) {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   console.log(id, title, description, period, startDate, endDate);
   return (
     <Container
       onClick={() => {
-        navigate("/schedule/" + id);
+        dispatch(getSchedules(id));
+        async function getScheduleById() {
+          const res = await authInstance.get("/schedules/" + id);
+          console.log(res.data.result);
+          dispatch(setCurrentSchedule(res.data.result));
+          dispatch(setSchedules(res.data.result.dayEvents));
+          navigate("/schedule/" + id);
+        }
+        getScheduleById();
       }}
     >
       <p>

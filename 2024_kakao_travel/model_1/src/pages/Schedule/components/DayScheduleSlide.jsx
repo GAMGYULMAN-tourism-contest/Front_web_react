@@ -28,9 +28,9 @@ const slideOutToRight = keyframes`
 `;
 
 const Container = styled.div`
-  width: 50vw;
+  width: 70vw;
   height: 100vh;
-  background-color: #ffe8b4;
+  background-color: #f9ffd7;
   color: black;
   display: flex;
   /* flex-direction: column; */
@@ -81,7 +81,7 @@ const TitleBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #ffcc78;
+  /* background-color: #ffcc78; */
 `;
 const DurationBox = styled.div`
   width: 70%;
@@ -91,7 +91,7 @@ const DurationBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #ffcc78;
+  /* background-color: #ffcc78; */
 `;
 const DescriptionBox = styled.div`
   width: 70%;
@@ -101,43 +101,45 @@ const DescriptionBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #ffcc78;
+  /* background-color: #ffcc78; */
 `;
 
 function DayScheduleSlide() {
-  const { eventDetailOpen } = useSelector((state) => state.schedules);
-  // const [showComponent, setShowComponent] = useState(true); // 전역 상태로 관리
-  console.log(eventDetailOpen);
+  const { eventDetailOpen, currentEvent } = useSelector(
+    (state) => state.schedules
+  );
   const dispatch = useDispatch();
 
-  // 애니메이션 완료 후 DOM에서 요소 제거
-  const handleAnimationEnd = (isOpen) => {
-    dispatch(setEventDetailOpen(false)); // 슬라이드 아웃 애니메이션이 끝난 후 요소 숨김
-  };
-
   return (
-    <div>
-      <Container
-        $isVisible={eventDetailOpen}
-        // onAnimationEnd={()=>handleAnimationEnd(eventDetailOpen)}
-      >
-        <MinButton onClick={() => dispatch(setEventDetailOpen(false))}>
-          {" "}
-          {">>"}{" "}
-        </MinButton>
+    <Container
+      $isVisible={eventDetailOpen}
+      // onAnimationEnd={()=>handleAnimationEnd(eventDetailOpen)}
+    >
+      <MinButton onClick={() => dispatch(setEventDetailOpen(false))}>
+        {" "}
+        {">>"}{" "}
+      </MinButton>
+      {currentEvent && (
         <MainBox>
+          <div>
+            <button>modify</button>
+            <button>delete</button>
+          </div>
+
           <TitleBox>
-            <h1>제목</h1>
+            <h1>{currentEvent.title}</h1>
           </TitleBox>
           <DurationBox>
-            <span>몇시부터 몇시까지</span>
+            <span>
+              {currentEvent.startTime} ~ {currentEvent.endTime}
+            </span>
           </DurationBox>
           <DescriptionBox>
-            <span>내용내용</span>
+            <span>{currentEvent.description}</span>
           </DescriptionBox>
         </MainBox>
-      </Container>
-    </div>
+      )}
+    </Container>
   );
 }
 
