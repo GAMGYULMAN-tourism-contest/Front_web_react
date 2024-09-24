@@ -247,8 +247,8 @@ function Navbar() {
   const [emailAddress, setEmailAddress] = useState("");
   const [invitedMessages, setInvitedMessages] = useState([]);
   const { currentSchedule } = useSelector((state) => state.schedules);
-  console.log(currentSchedule);
-  console.log(invitedMessages);
+  // console.log(currentSchedule);
+  // console.log(invitedMessages);
 
   const handleMailBoxClick = () => {
     setMailBoxOpen(!mailBoxOpen);

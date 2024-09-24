@@ -167,24 +167,16 @@ function MakeModal() {
     return dayDifference;
   };
 
-  console.log(makeModalOpen);
   const dispatch = useDispatch();
 
   async function postSchedule(reqData) {
     const resData = await authInstance.post("/schedules", reqData);
-    console.log(resData);
+    console.log(reqData, resData);
     dispatch(setSchedules(resData.dayEvents));
   }
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(
-      title,
-      description,
-      startDate,
-      endDate,
-      calculateDateDifference()
-    );
     const reqData = {
       title: title || null,
       description: description || null,
@@ -205,6 +197,7 @@ function MakeModal() {
     } else {
       postSchedule(reqData);
       dispatch(setMakeModalOpen(false));
+      // 전체 스케줄 생성 api 호출 및 currentSchedule에 저장
     }
   };
 

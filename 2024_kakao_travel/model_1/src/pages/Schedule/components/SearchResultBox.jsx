@@ -91,7 +91,7 @@ const PlaceContact = styled.p`
 const DraggablePlaceDetails = ({ item }) => {
   const [{ isDragging }, drag] = useDrag({
     type: "searchItem",
-    item: { ...item },
+    item: { ...item, type: "searchItem" },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
@@ -109,7 +109,6 @@ const DraggablePlaceDetails = ({ item }) => {
 
 function SearchResultBox() {
   const searchesState = useSelector((state) => state.searches);
-  console.log(searchesState);
 
   return (
     <Container>

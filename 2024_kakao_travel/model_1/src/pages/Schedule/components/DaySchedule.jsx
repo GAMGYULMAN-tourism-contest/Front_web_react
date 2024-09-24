@@ -5,6 +5,7 @@ import styled from "styled-components";
 import {
   addDayEvent,
   updateDayEvent,
+  deleteDayEvent,
   setEventDetailOpen,
   setCurrentEvent,
 } from "../../../state/schedules/schedulesSlice"; // 경로를 실제 위치에 맞게 변경하세요
@@ -15,6 +16,7 @@ import { IoIosCloseCircleOutline } from "react-icons/io";
 
 // Styled Components 정의
 const ScheduleContainer = styled.div`
+  flex: 0 0 40%; /* 요소가 줄어들지 않고 40% 너비를 유지하도록 설정 */
   width: 40%;
   display: grid;
   grid-template-columns: 1fr;
@@ -51,13 +53,29 @@ const DraggableScheduleCard = styled.div`
   transition: height 0.3s ease;
   z-index: ${({ $isDragging }) =>
     $isDragging ? 0 : 1}; // 뒤로 드래그 가능하도록 함
+  border-radius: 15px;
+
+  button {
+    position: absolute;
+    left: 91%;
+    top: 2px;
+    background-color: #ff663c;
+    width: 25px;
+    height: 25px;
+    font-size: 12px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    opacity: 0.8;
+    border-radius: 50%;
+    svg {
+      font-size: 18px;
+      position: relative;
+      right: 2.1px;
+      top: 1.6px;
+    }
+  }
 `;
-
-// const MyResizableBox = styled(ResizableBox)`
-//   width: 90%;
-//   height: 90%;
-
-// `;
 
 const ScheduleTitle = styled.div`
   position: absolute;
@@ -73,6 +91,8 @@ const ScheduleTitle = styled.div`
   word-break: keep-all;
   text-align: center;
 `;
+
+// 소켓 쓰는 함수 이벤트 CRUD
 
 // 유틸리티 함수
 const parseTimeToHour = (time) => {
@@ -119,7 +139,6 @@ const DraggableScheduleCardComponent = ({
   const handleClick = (event) => {
     if (!isDragging && !isResizing) {
       // 드래그나 리사이즈 중이 아닐 때만 클릭 이벤트 처리
-      console.log(event);
       dispatch(setEventDetailOpen(true));
       dispatch(setCurrentEvent(event));
     }
@@ -161,6 +180,9 @@ const DraggableScheduleCardComponent = ({
         }
       >
         <ScheduleTitle>{schedule.title}</ScheduleTitle>
+        <button onClick={(e) => deleteEventOnSchedules(e)}>
+          <IoIosCloseCircleOutline></IoIosCloseCircleOutline>
+        </button>
       </ResizableBox>
     </DraggableScheduleCard>
   );
@@ -172,7 +194,7 @@ const HourBlockComponent = ({ hour, day, children, onDrop }) => {
     accept: ["schedule", "searchItem"],
     drop: (item) => {
       const newStartTime = `${hour}:00`;
-      onDrop(item.id, item.title, newStartTime, day);
+      onDrop(item.id, item.title, newStartTime, day, item.type);
     },
     collect: (monitor) => ({
       isOver: monitor.isOver(),
@@ -195,15 +217,25 @@ const HourBlockComponent = ({ hour, day, children, onDrop }) => {
 };
 
 // DaySchedule 컴포넌트
-const DaySchedule = ({ day }) => {
+const DaySchedule = ({
+  day,
+  dayEventsId,
+  sendCreateMessage,
+  sendUpdateMessage,
+  sendDeleteMessage,
+}) => {
   const dispatch = useDispatch();
   const schedules = useSelector((state) => state.schedules.schedules);
+  const currentSchedule = useSelector(
+    (state) => state.schedules.currentSchedule
+  );
   const dayData = schedules.find((schedule) => schedule.day == day);
   const events = dayData ? dayData.events : [];
   console.log(schedules, dayData, events);
 
-  const handleDrop = (id, title, newStartTime, newDay) => {
+  const handleDrop = (id, title, newStartTime, newDay, type) => {
     const existingEvent = events.find((event) => event.id === id);
+    console.log(id, title, newStartTime, newDay, type);
 
     if (existingEvent) {
       // 기존 이벤트의 지속 시간을 계산
@@ -212,7 +244,6 @@ const DaySchedule = ({ day }) => {
         parseTimeToHour(existingEvent.startTime);
       // 기존 이벤트의 지속 시간을 사용하여 새로운 종료 시간을 계산
       const newEndTime = calculateNewEndTime(newStartTime, duration * 60);
-
       // 새로운 시간대에 다른 이벤트가 있는지 확인
       const isOverlap = events.some((event) => {
         const eventStart = parseTimeToHour(event.startTime);
@@ -242,8 +273,27 @@ const DaySchedule = ({ day }) => {
 
       dispatch(updateDayEvent({ day: newDay, updatedEvent, originDay: day }));
     } else {
-      // 새로운 이벤트 생성 시 기본 지속 시간을 1시간으로 설정
-      const newEndTime = calculateNewEndTime(newStartTime, 60);
+      let newEndTime;
+      if (type === "searchItem") {
+        newEndTime = calculateNewEndTime(newStartTime, 60);
+      } else {
+        // 이전 날짜의 기존 이벤트 추적
+        let prevDayEvent;
+        schedules.map((dayEvent) => {
+          for (let event in dayEvent.events) {
+            console.log(dayEvent.events[event]);
+            if (dayEvent.events[event].id === id) {
+              prevDayEvent = dayEvent.events[event];
+            }
+          }
+        });
+        // 기존 이벤트의 지속 시간을 계산
+        const duration =
+          parseTimeToHour(prevDayEvent.endTime) -
+          parseTimeToHour(prevDayEvent.startTime);
+        // 기존 이벤트의 지속 시간을 사용하여 새로운 종료 시간을 계산
+        newEndTime = calculateNewEndTime(newStartTime, duration * 60);
+      }
 
       // 새로운 시간대에 다른 이벤트가 있는지 확인
       const isOverlap = events.some((event) => {
@@ -272,7 +322,16 @@ const DaySchedule = ({ day }) => {
         title,
       };
 
+      let delEvent;
+      // 이전 데이 스케줄에 있던 이벤트 삭제
+      schedules.map((dayEvent) => {
+        if (dayEvent.day !== day) {
+          delEvent = dayEvent.events.find((event) => event.id === id);
+        }
+      });
+
       dispatch(addDayEvent({ day: newDay, newEvent }));
+      dispatch(deleteDayEvent({ event: delEvent }));
     }
   };
 
@@ -292,6 +351,21 @@ const DaySchedule = ({ day }) => {
 
     // 리사이즈가 끝난 후 상태 업데이트
     dispatch(updateDayEvent({ day: day, updatedEvent, originDay: day }));
+    // 소켓 메시지 뿌리기
+    console.log(updatedEvent);
+    const chatMessage = JSON.stringify({
+      scheduleId: currentSchedule.id,
+      eventId: updatedEvent.id,
+      dayEventsId: dayEventsId,
+      title: updatedEvent.title,
+      description: updatedEvent.description,
+      startTime: updatedEvent.startTime,
+      endTime: updatedEvent.endTime,
+      locationContentId: "",
+      locationContentTypeId: "",
+    });
+    console.log(chatMessage);
+    sendUpdateMessage(chatMessage);
   };
 
   // 각 이벤트를 시간별로 그룹화하여 메모이제이션
@@ -342,6 +416,7 @@ const DaySchedule = ({ day }) => {
             })}
         </HourBlockComponent>
       ))}
+
       <DayScheduleSlide></DayScheduleSlide>
     </ScheduleContainer>
   );

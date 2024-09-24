@@ -51,4 +51,29 @@ const FloatingSave = styled.button`
   background-color: #4caf50;
 `;
 
-export { Container, MenuBox, ScheduleBox, FloatingButton, FloatingSave };
+const DayEventsAdditionButton = styled.button`
+  width: 40px;
+  height: 40px;
+  position: relative;
+  /* bottom: calc(12vh + 20px); */
+  top: 45vh;
+  right: -4vw;
+  background-color: #4caf50;
+  color: white;
+  padding: 5px 5px;
+  border: none;
+  cursor: pointer;
+  /* z-index: 20; */
+  border-radius: 50%;
+  font-size: 30px;
+  background-color: #4caf50;
+`;
+
+export {
+  Container,
+  MenuBox,
+  ScheduleBox,
+  FloatingButton,
+  FloatingSave,
+  DayEventsAdditionButton,
+};

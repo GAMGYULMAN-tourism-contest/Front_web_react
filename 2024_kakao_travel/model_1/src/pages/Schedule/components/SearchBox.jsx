@@ -102,16 +102,6 @@ const SearchBox = () => {
   const [searchKeyword, setSearchKeyword] = useState("");
   const dispatch = useDispatch();
 
-  // async function getSearches({ keyword, page, size }) {
-  //   console.log(keyword, page, size);
-  //   let url = "/travels";
-  //   const apiResult = await authInstance.get(
-  //     url + "?page=" + page + "&size=" + size + "&keyword=" + keyword
-  //   );
-  //   console.log(apiResult);
-  //   setSearches(apiResult.data.result.item); // item, numOfRows, pageNo, totalcount 있음
-  // }
-
   const handleSearchKeywordChange = (e) => {
     setSearchKeyword(e.target.value);
   };
@@ -120,7 +110,6 @@ const SearchBox = () => {
     e.preventDefault();
     console.log(searchKeyword);
     dispatch(getSearchItems({ keyword: searchKeyword, page: 1, size: 10 }));
-    // getSearches({ keyword: searchKeyword, page: 1, size: 10 });
   };
 
   return (

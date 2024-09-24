@@ -5,6 +5,7 @@ import {
   getSchedules,
   setSchedules,
   setCurrentSchedule,
+  setMakeModalOpen,
 } from "../../../state/schedules/schedulesSlice";
 import { useDispatch } from "react-redux";
 import { authInstance } from "../../../api/axiosInstance";
@@ -43,9 +44,10 @@ function ScheduleBlock({ id, title, description, period, startDate, endDate }) {
         dispatch(getSchedules(id));
         async function getScheduleById() {
           const res = await authInstance.get("/schedules/" + id);
-          console.log(res.data.result);
+          // console.log(res.data.result);
           dispatch(setCurrentSchedule(res.data.result));
           dispatch(setSchedules(res.data.result.dayEvents));
+          dispatch(setMakeModalOpen(false));
           navigate("/schedule/" + id);
         }
         getScheduleById();
