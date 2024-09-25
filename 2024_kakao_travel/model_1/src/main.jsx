@@ -11,7 +11,13 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 ReactDOM.createRoot(document.getElementById("root")).render(
   <DndProvider backend={HTML5Backend}>
     <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
+      <PersistGate
+        loading={null}
+        persistor={persistor}
+        onBeforeLift={() => {
+          console.log("Rehydration completed!");
+        }}
+      >
         <App />
       </PersistGate>
     </Provider>

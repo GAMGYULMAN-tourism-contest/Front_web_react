@@ -15,7 +15,7 @@ import SockJS from "sockjs-client/dist/sockjs";
 import { Stomp } from "@stomp/stompjs";
 import {
   getSchedules,
-  setSocketClient,
+  // setSocketClient,
 } from "../../state/schedules/schedulesSlice";
 
 function SchedulePage() {
@@ -115,6 +115,7 @@ function SchedulePage() {
   };
 
   useEffect(() => {
+    console.log(currentSchedule);
     dispatch(getSearchItems({ page: 1, size: 10 }));
   }, []);
 
@@ -135,8 +136,7 @@ function SchedulePage() {
           (messageOutput) => {
             const json = JSON.parse(messageOutput.body);
             console.log(json);
-            // TODO: 로직 처리
-            setEventId(json.result.id);
+            dispatch(getSchedules(currentSchedule.id));
           }
         );
         stompClient.subscribe(
@@ -144,6 +144,7 @@ function SchedulePage() {
           (messageOutput) => {
             const json = JSON.parse(messageOutput.body);
             console.log(json);
+            dispatch(getSchedules(currentSchedule.id));
           }
         );
         stompClient.subscribe(
@@ -151,7 +152,7 @@ function SchedulePage() {
           (messageOutput) => {
             const json = JSON.parse(messageOutput.body);
             console.log(json);
-            getSchedules(currentSchedule.id);
+            dispatch(getSchedules(currentSchedule.id));
           }
         );
       }
@@ -159,7 +160,7 @@ function SchedulePage() {
 
     console.log("연결 성공", stompClient);
     setStompClient(stompClient);
-    dispatch(setSocketClient(stompClient));
+    // dispatch(setSocketClient(stompClient));
 
     return () => {
       if (stompClient) {
