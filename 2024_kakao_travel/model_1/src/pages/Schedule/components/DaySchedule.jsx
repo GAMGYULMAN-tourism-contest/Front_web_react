@@ -118,7 +118,9 @@ const DraggableScheduleCardComponent = ({
   currentDay,
   onResize,
   onResizeStop,
+  sendDeleteMessage,
 }) => {
+  console.log("드래그 아이템에서 schedule이란?", schedule);
   const [isResizing, setIsResizing] = useState(false);
   const [tempHeight, setTempHeight] = useState(height); // 로컬 상태로 임시 높이 관리
   const [{ isDragging }, drag] = useDrag({
@@ -180,7 +182,7 @@ const DraggableScheduleCardComponent = ({
         }
       >
         <ScheduleTitle>{schedule.title}</ScheduleTitle>
-        <button onClick={(e) => deleteEventOnSchedules(e)}>
+        <button onClick={(e) => sendDeleteMessage()}>
           <IoIosCloseCircleOutline></IoIosCloseCircleOutline>
         </button>
       </ResizableBox>
@@ -231,11 +233,11 @@ const DaySchedule = ({
   );
   const dayData = schedules.find((schedule) => schedule.day == day);
   const events = dayData ? dayData.events : [];
-  console.log(schedules, dayData, events);
+  // console.log(schedules, dayData, events);
 
   const handleDrop = (id, title, newStartTime, newDay, type) => {
     const existingEvent = events.find((event) => event.id === id);
-    console.log(id, title, newStartTime, newDay, type);
+    console.log(id, title, newStartTime, newDay, type, existingEvent);
 
     if (existingEvent) {
       // 기존 이벤트의 지속 시간을 계산
@@ -272,16 +274,48 @@ const DaySchedule = ({
       };
 
       dispatch(updateDayEvent({ day: newDay, updatedEvent, originDay: day }));
+      // 소켓 메시지 뿌리기
+      console.log(updatedEvent);
+      const chatMessage = JSON.stringify({
+        scheduleId: currentSchedule.id,
+        eventId: updatedEvent.id,
+        dayEventsId: dayEventsId,
+        title: updatedEvent.title,
+        description: updatedEvent.description,
+        startTime: updatedEvent.startTime,
+        endTime: updatedEvent.endTime,
+        locationContentId: "",
+        locationContentTypeId: "",
+      });
+      console.log(chatMessage);
+      sendUpdateMessage(chatMessage);
     } else {
+      // 기존 이벤트 현재 날짜에서 못 찾은 경우 (날짜이동 or 검색결과 드래그)
       let newEndTime;
+      // 검색결과 케이스
       if (type === "searchItem") {
         newEndTime = calculateNewEndTime(newStartTime, 60);
-      } else {
+        // 소켓 메시지 뿌리기 - 추가
+        const chatMessageCreate = JSON.stringify({
+          scheduleId: currentSchedule.id,
+          // eventId: updatedEvent.id,
+          dayEventsId: dayEventsId,
+          title: title, // drop에서 가져온 title
+          description: title, // 설명 없음, 제목 그대로
+          startTime: newStartTime,
+          endTime: newEndTime,
+          locationContentId: "",
+          locationContentTypeId: "",
+        });
+        sendCreateMessage(chatMessageCreate);
+      }
+      // 날짜이동 케이스
+      else {
         // 이전 날짜의 기존 이벤트 추적
         let prevDayEvent;
         schedules.map((dayEvent) => {
           for (let event in dayEvent.events) {
-            console.log(dayEvent.events[event]);
+            // console.log(dayEvent.events[event]);
             if (dayEvent.events[event].id === id) {
               prevDayEvent = dayEvent.events[event];
             }
@@ -332,6 +366,26 @@ const DaySchedule = ({
 
       dispatch(addDayEvent({ day: newDay, newEvent }));
       dispatch(deleteDayEvent({ event: delEvent }));
+
+      // 소켓 메시지 뿌리기 - 추가
+      const chatMessageCreate = JSON.stringify({
+        scheduleId: currentSchedule.id,
+        // eventId: updatedEvent.id,
+        dayEventsId: dayEventsId,
+        title: newEvent.title,
+        description: newEvent.description,
+        startTime: newEvent.startTime,
+        endTime: newEvent.endTime,
+        locationContentId: "",
+        locationContentTypeId: "",
+      });
+      sendCreateMessage(chatMessageCreate);
+      // 소켓 메시지 뿌리기 - 삭제
+      const chatMessageDel = JSON.stringify({
+        scheduleId: currentSchedule.id,
+        eventId: delEvent.id,
+      });
+      sendDeleteMessage(chatMessageDel);
     }
   };
 
@@ -409,6 +463,7 @@ const DaySchedule = ({
                   currentDay={day}
                   onResize={handleResize}
                   onResizeStop={handleResizeStop}
+                  sendDeleteMessage
                 >
                   <ScheduleTitle>{event.title}</ScheduleTitle>
                 </DraggableScheduleCardComponent>

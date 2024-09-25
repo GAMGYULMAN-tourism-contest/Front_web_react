@@ -8,6 +8,7 @@ import { IoShareSocialOutline } from "react-icons/io5";
 import { authInstance } from "../api/axiosInstance";
 import { useSelector } from "react-redux";
 import { TbMoodLookUp } from "react-icons/tb";
+import { IoMdPerson } from "react-icons/io";
 
 const Container = styled.div`
   width: 100%;
@@ -137,7 +138,7 @@ const InviteButton = styled.button`
 
 const MailModalBox = styled.div`
   width: 40vw;
-  height: 25vh;
+  height: 35vh;
   background-color: #ffe8b4;
   color: black;
   display: flex;
@@ -152,6 +153,7 @@ const MailModalBox = styled.div`
   background-color: white;
   border-radius: 20px;
   font-size: 18px;
+  overflow-y: auto;
 `;
 
 const EmptyState = styled.div`
@@ -192,7 +194,7 @@ const MessageList = styled.div`
 const MessageItem = styled.div`
   padding: 10px;
   width: 90%;
-  height: 30%;
+  height: 22%;
   display: flex;
   justify-content: space-between;
   background-color: #f8f9fa;
@@ -209,7 +211,7 @@ const TextBox = styled.div`
 `;
 
 const ButtonBox = styled.div`
-  width: 45%;
+  width: 40%;
   display: flex;
   margin-left: 10px;
   gap: 10px;
@@ -247,8 +249,6 @@ function Navbar() {
   const [emailAddress, setEmailAddress] = useState("");
   const [invitedMessages, setInvitedMessages] = useState([]);
   const { currentSchedule } = useSelector((state) => state.schedules);
-  // console.log(currentSchedule);
-  // console.log(invitedMessages);
 
   const handleMailBoxClick = () => {
     setMailBoxOpen(!mailBoxOpen);
@@ -296,6 +296,9 @@ function Navbar() {
       </LeftBox>
       {window.location.href.includes("http://localhost:5173/schedule/") && (
         <RightBox>
+          <span>
+            <IoMdPerson onClick={() => navigate("/mypage")} />
+          </span>
           <span>
             <GoMail onClick={() => handleMailBoxClick()} />
           </span>

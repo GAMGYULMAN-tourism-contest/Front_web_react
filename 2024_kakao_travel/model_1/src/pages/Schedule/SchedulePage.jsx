@@ -40,19 +40,20 @@ function SchedulePage() {
   const handleSaveClick = () => {
     //TODO: 스케줄 수정 api, reqData 중 dayEvents만 = schedules.schedules로 바꿔서 실행
   };
-  const sendCreateMessage = () => {
+
+  const sendCreateMessage = (chatMessage) => {
     console.log(eventId);
     if (stompClient) {
-      const chatMessage = JSON.stringify({
-        scheduleId: scheduleId,
-        dayEventsId: dayEventsId,
-        title: "title",
-        description: "desciption",
-        startTime: "09:00",
-        endTime: "10:00",
-        locationContentId: "",
-        locationContentTypeId: "",
-      });
+      // const chatMessage = JSON.stringify({
+      //   scheduleId: scheduleId,
+      //   dayEventsId: dayEventsId,
+      //   title: "title",
+      //   description: "desciption",
+      //   startTime: "09:00",
+      //   endTime: "10:00",
+      //   locationContentId: "",
+      //   locationContentTypeId: "",
+      // });
 
       console.log(chatMessage);
 
@@ -93,13 +94,13 @@ function SchedulePage() {
     }
   };
 
-  const sendDeleteMessage = () => {
+  const sendDeleteMessage = (chatMessage) => {
     console.log(eventId);
     if (stompClient) {
-      const chatMessage = JSON.stringify({
-        scheduleId: scheduleId,
-        eventId: eventId,
-      });
+      // const chatMessage = JSON.stringify({
+      //   scheduleId: scheduleId,
+      //   eventId: eventId,
+      // });
 
       console.log(chatMessage);
 
@@ -118,8 +119,8 @@ function SchedulePage() {
   }, []);
 
   useEffect(() => {
-    // const socket = new SockJS("http://localhost:8080/socket");
-    const socket = new SockJS("http://3.35.101.171/socket");
+    const socket = new SockJS("http://3.35.101.171:8080/socket");
+    // const socket = new SockJS("http://3.35.101.171/socket");
     const stompClient = Stomp.over(() => socket);
 
     stompClient.connect(
