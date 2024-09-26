@@ -58,7 +58,7 @@ const TopLoginButtonImg = styled.img`
 `;
 
 const MainFeatBox = styled.div`
-  margin-top: 60px;
+  margin-top: 8vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -76,13 +76,14 @@ const MainFeatItem = styled.div`
   /* font-size: 30px; */
   font-size: 4vh;
   cursor: pointer;
-  opacity: 0.7;
+  opacity: 0.8;
   border-radius: 20px;
   &:hover {
     opacity: 1;
     scale: 1.02;
     transition: opacity 0.8s ease;
   }
+  box-shadow: 14px 15px 25px 0px rgba(252, 197, 114, 1);
 `;
 
 export {

@@ -1,14 +1,29 @@
 import React, { useEffect } from "react";
+import ReactDOMServer from "react-dom/server";
 import * as S from "./MapPage.style";
 import { RiCalendarScheduleLine } from "react-icons/ri";
 import SearchBox from "./components/SearchBox";
 import { useNavigate } from "react-router";
 import { useSelector } from "react-redux";
+import MapMarkerWindow from "./components/MapMarkerWindow";
 
 function Kakao() {
   const { kakao } = window;
   const { searches } = useSelector((state) => state.searches);
   console.log(searches);
+  // // 인포윈도우를 표시하는 클로저를 만드는 함수입니다
+  // function makeOverListener(map, marker, infowindow) {
+  //   return function () {
+  //     infowindow.open(map, marker);
+  //   };
+  // }
+
+  // // 인포윈도우를 닫는 클로저를 만드는 함수입니다
+  // function makeOutListener(infowindow) {
+  //   return function () {
+  //     infowindow.close();
+  //   };
+  // }
 
   useEffect(() => {
     var container = document.getElementById("map"); //지도를 담을 영역의 DOM 레퍼런스
@@ -27,64 +42,56 @@ function Kakao() {
     //     title: "카카오",
     //     latlng: new kakao.maps.LatLng(33.450705, 126.570677),
     //   },
-    //   {
-    //     title: "생태연못",
-    //     latlng: new kakao.maps.LatLng(33.450936, 126.569477),
-    //   },
-    //   {
-    //     title: "텃밭",
-    //     latlng: new kakao.maps.LatLng(33.450879, 126.56994),
-    //   },
-    //   {
-    //     title: "근린공원",
-    //     latlng: new kakao.maps.LatLng(33.451393, 126.570738),
-    //   },
     // ];
 
-    // 마커 이미지의 이미지 주소입니다
+    // 검색 결과 마커 이미지의 이미지 주소입니다
     var imageSrc =
       "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png";
+    console.log(searches);
+    if (searches) {
+      searches.forEach((searchItem, index) => {
+        // var 키워드 (함수 스코프)로 인한 forEach사용
+        var imageSize = new kakao.maps.Size(28, 40); // 마커 이미지의 크기
+        var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize); // 마커 이미지 생성
 
-    for (var i = 0; i < searches.length; i++) {
-      // 마커 이미지의 이미지 크기 입니다
-      var imageSize = new kakao.maps.Size(24, 35);
+        var marker = new kakao.maps.Marker({
+          map: map, // 마커를 표시할 지도
+          position: new kakao.maps.LatLng(searchItem.mapy, searchItem.mapx), // 마커의 위치
+          title: searchItem.title, // 마커의 타이틀
+          image: markerImage, // 마커 이미지
+        });
 
-      // 마커 이미지를 생성합니다
-      var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize);
+        // 오버레이 컨텐츠 생성
+        const contentString = ReactDOMServer.renderToString(
+          <MapMarkerWindow
+            searchItem={searchItem}
+            onClickDelete={() => overlay.setMap(null)} // 오버레이 닫기 함수
+          />
+        );
 
-      // 마커를 생성합니다
-      console.log(searches);
-      var marker = new kakao.maps.Marker({
-        map: map, // 마커를 표시할 지도
-        position: new kakao.maps.LatLng(searches[i].mapy, searches[i].mapx), // 마커를 표시할 위치
-        title: searches[i].title, // 마커의 타이틀, 마커에 마우스를 올리면 타이틀이 표시됩니다
-        image: markerImage, // 마커 이미지
+        // 커스텀 오버레이 생성
+        var overlay = new kakao.maps.CustomOverlay({
+          content: contentString,
+          position: marker.getPosition(),
+          map: null, // 처음에는 맵에 표시하지 않음
+          yAnchor: 1.1,
+          xAnchor: 0,
+        });
+
+        // 마커 클릭 시 해당 오버레이만 표시 나중에 닫기 기능을 분리할 지 고민
+        kakao.maps.event.addListener(marker, "click", function () {
+          console.log(overlay);
+          if (overlay.getMap()) {
+            overlay.setMap(null); // 이미 표시 중이면 오버레이를 닫음
+            return;
+          }
+
+          overlay.setMap(map); // 클릭 시 오버레이 표시
+        });
       });
+    } else {
+      alert("no search items!");
     }
-
-    // // 지도에 마커와 인포윈도우를 표시하는 함수입니다
-    // function displayMarker(locPosition, message) {
-    //   // 마커를 생성합니다
-    //   var marker = new kakao.maps.Marker({
-    //     map: map,
-    //     position: locPosition,
-    //   });
-
-    //   var iwContent = message, // 인포윈도우에 표시할 내용
-    //     iwRemoveable = true;
-
-    //   // 인포윈도우를 생성합니다
-    //   var infowindow = new kakao.maps.InfoWindow({
-    //     content: iwContent,
-    //     removable: iwRemoveable,
-    //   });
-
-    //   // 인포윈도우를 마커위에 표시합니다
-    //   infowindow.open(map, marker);
-
-    //   // 지도 중심좌표를 접속위치로 변경합니다
-    //   map.setCenter(locPosition);
-    // }
   }, [searches]);
 
   return <div id="map" style={{ width: "100%", height: "90vh" }}></div>;
@@ -100,6 +107,14 @@ function MapPage() {
       <S.MapBox>
         <Kakao></Kakao>
       </S.MapBox>
+      {/* <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d27406.878219625392!2d126.52369461028783!3d33.466700273554736!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x350cfb08ab075f1f%3A0xb6bd0e0e38809ca8!2z64iE7Juo66eI66Oo6rGw66as!5e0!3m2!1sko!2skr!4v1727327830240!5m2!1sko!2skr"
+        width="600"
+        height="450"
+        // allowFullScreen=""
+        // loading="lazy"
+        // referrerPolicy="no-referrer-when-downgrade"
+      ></iframe> */}
       {/* TODO: currentSchedule.id 로 내비게이트 */}
       <S.FloatingButton onClick={() => navigate("/schedule/1")}>
         <RiCalendarScheduleLine />
