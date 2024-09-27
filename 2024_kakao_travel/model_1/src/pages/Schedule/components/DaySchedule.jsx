@@ -117,7 +117,7 @@ import { authInstance } from "../../../api/axiosInstance";
 // Styled Components 정의
 const ScheduleContainer = styled.div`
   flex: 0 0 40%; /* 요소가 줄어들지 않고 40% 너비를 유지하도록 설정 */
-  width: 40%;
+  width: 40vw;
   display: grid;
   grid-template-columns: 1fr;
   position: relative;
@@ -129,6 +129,7 @@ const HourBlock = styled.div`
   border: 1px solid #ccc;
   position: relative;
   height: 60px;
+  /* height: 100%; */
   background-color: ${({ $isOver }) => ($isOver ? "#777777" : "#ffeebcb8")};
 `;
 

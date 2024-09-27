@@ -43,6 +43,19 @@ const ScheduleBox = styled.div`
   height: 90vh;
   overflow-x: auto;
   display: flex;
+  /* width: ${(props) => 200 / props.ratio}%;
+  height: ${(props) => 200 / props.ratio}%;
+  transform: scale(${(props) => props.ratio});
+  transform-origin: left top; */
+`;
+
+const SchduleBoxInLay = styled.div`
+  /* overflow-x: auto; */
+  display: flex;
+  width: ${(props) => 200 / props.ratio}%;
+  height: ${(props) => 200 / props.ratio}%;
+  transform: scale(${(props) => props.ratio});
+  transform-origin: left top;
 `;
 
 const FloatingButton = styled.button`
@@ -101,6 +114,7 @@ export {
   Container,
   MenuBox,
   ScheduleBox,
+  SchduleBoxInLay,
   FloatingButton,
   FloatingSave,
   DayEventsAdditionButton,

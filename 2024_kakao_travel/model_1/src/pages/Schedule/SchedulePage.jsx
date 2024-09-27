@@ -20,11 +20,13 @@ import {
   // setSocketClient,
 } from "../../state/schedules/schedulesSlice";
 import { authInstance } from "../../api/axiosInstance";
+import UserOverlay from "./components/UserOverlay";
 
 function SchedulePage() {
   const [stompClient, setStompClient] = useState(null);
   const [eventId, setEventId] = useState("");
   const [token, setToken] = useState(localStorage.getItem("accessToken"));
+  const [ratio, setRatio] = useState(1); // 화면 확대 축소 비율
 
   const navigate = useNavigate();
   const data = useSelector((state) => state.schedules.schedules);
@@ -32,6 +34,10 @@ function SchedulePage() {
     (state) => state.schedules.currentSchedule
   );
   const dispatch = useDispatch();
+
+  const wheelHandler = (e) => {
+    setRatio((ratio) => (ratio >= 0.2 ? ratio + 0.001 * e.deltaY : 0.2));
+  };
 
   // 날짜 하루 추가
   const addDayEvents = async () => {
@@ -124,6 +130,26 @@ function SchedulePage() {
     }
   };
 
+  const sendFirstEnterMessage = (stompClient) => {
+    console.log("if 전", stompClient);
+    if (stompClient) {
+      console.log("if도 함");
+      const chatMessage = JSON.stringify({
+        scheduleId: currentSchedule.id,
+      });
+
+      console.log(chatMessage);
+
+      stompClient.send(
+        "/events/participants",
+        {
+          Authorization: "Bearer " + token,
+        },
+        chatMessage
+      );
+    }
+  };
+
   useEffect(() => {
     console.log(currentSchedule);
     dispatch(getSearchItems({ page: 1, size: 10 }));
@@ -170,11 +196,24 @@ function SchedulePage() {
             dispatch(getSchedules(currentSchedule.id));
           }
         );
+        stompClient.subscribe(
+          "/user/schedules/participants/" + currentSchedule.id,
+          (messageOutput) => {
+            const json = JSON.parse(messageOutput.body);
+            console.log(json);
+            // json.result.participants 를 가져와서 전역상태로 관리 -> overlay 추가
+          }
+        );
       }
     );
 
     console.log("연결 성공", stompClient);
     setStompClient(stompClient);
+
+    // 첫 연결 시 참가한다고 서버에 알림 -> 나중에 실시간 참여자 수 구함
+    setTimeout(() => sendFirstEnterMessage(stompClient), 2000);
+    // sendFirstEnterMessage(stompClient);
+    // sendFirstEnterMessage();
     // dispatch(setSocketClient(stompClient));
 
     return () => {
@@ -186,13 +225,14 @@ function SchedulePage() {
 
   return (
     <S.Container>
+      <UserOverlay />
       <MakeModal></MakeModal>
       <S.MenuBox>
         <SearchBox />
       </S.MenuBox>
       {data && (
         <S.ScheduleBox>
-          {console.log(stompClient)}
+          {/* <S.SchduleBoxInLay ratio={ratio} onWheel={wheelHandler}> */}
           {data.map((dayEvents, idx) => (
             <DaySchedule
               key={dayEvents.day + idx}
@@ -210,6 +250,7 @@ function SchedulePage() {
           <S.DayEventsAdditionButton onClick={() => addDayEvents()}>
             <IoIosAddCircleOutline />
           </S.DayEventsAdditionButton>
+          {/* </S.SchduleBoxInLay> */}
         </S.ScheduleBox>
       )}
     </S.Container>

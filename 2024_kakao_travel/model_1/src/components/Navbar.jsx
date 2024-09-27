@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import styled from "styled-components";
 import logo from "../assets/logo.png";
 import { useNavigate } from "react-router";
@@ -9,6 +9,8 @@ import { authInstance } from "../api/axiosInstance";
 import { useSelector } from "react-redux";
 import { TbMoodLookUp } from "react-icons/tb";
 import { IoMdPerson } from "react-icons/io";
+import { GrHelpBook } from "react-icons/gr";
+import HelpModal from "./HelpModal";
 
 const Container = styled.div`
   width: 100%;
@@ -185,7 +187,7 @@ const MessageList = styled.div`
   height: 70%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* justify-content: center; */
   align-items: center;
   gap: 10px;
   overflow-y: auto;
@@ -197,7 +199,13 @@ const MessageItem = styled.div`
   height: 22%;
   display: flex;
   justify-content: space-between;
-  background-color: #f8f9fa;
+  background-color: ${(props) => {
+    if (props.status === "ACCEPT" || props.status === "DENYED") {
+      return "#6e6e6e";
+    } else {
+      return "#efefef";
+    }
+  }};
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   color: #495057;
@@ -218,7 +226,11 @@ const ButtonBox = styled.div`
 `;
 
 const AcceptButton = styled.div`
-  background-color: #28a745;
+  /* background-color: #28a745; */
+  background-color: ${(props) =>
+    props.status === "ACCEPT" || props.status === "DENYED"
+      ? "#1d7933"
+      : "#28a745"};
   color: white;
   padding: 10px 20px;
   border: none;
@@ -228,9 +240,15 @@ const AcceptButton = styled.div`
   width: 45px;
   height: 20px;
   text-align: center;
+  pointer-events: ${(props) =>
+    props.status === "READ" || props.status === "NOT_READ" ? "all" : "none"};
 `;
 const DenyButton = styled.div`
-  background-color: #ff6969;
+  /* background-color: #ff6969; */
+  background-color: ${(props) =>
+    props.status === "ACCEPT" || props.status === "DENYED"
+      ? "#ae4848"
+      : "#ff6969"};
   color: white;
   padding: 10px 20px;
   border: none;
@@ -240,22 +258,32 @@ const DenyButton = styled.div`
   width: 45px;
   height: 20px;
   text-align: center;
+  pointer-events: ${(props) =>
+    props.status === "READ" || props.status === "NOT_READ" ? "all" : "none"};
 `;
 
 function Navbar() {
   const navigate = useNavigate();
   const [mailBoxOpen, setMailBoxOpen] = useState(false);
   const [shareBoxOpen, setShareBoxOpen] = useState(false);
+  const [helpBoxOpen, setHelpBoxOpen] = useState(false);
   const [emailAddress, setEmailAddress] = useState("");
   const [invitedMessages, setInvitedMessages] = useState([]);
+  console.log(invitedMessages);
   const [validInvitationNumber, setValidInvitationNumber] = useState("");
   const { currentSchedule } = useSelector((state) => state.schedules);
 
   const handleMailBoxClick = () => {
     setMailBoxOpen(!mailBoxOpen);
+    if (shareBoxOpen) {
+      setShareBoxOpen(false);
+    }
   };
   const handleShareClick = () => {
     setShareBoxOpen(!shareBoxOpen);
+    if (mailBoxOpen) {
+      setMailBoxOpen(false);
+    }
   };
   const handleShareSubmit = (e) => {
     e.preventDefault();
@@ -274,14 +302,23 @@ function Navbar() {
     setShareBoxOpen(false);
     setEmailAddress("");
   };
-  const handleInvitation = async (invitationId, status) => {
+  // const handleInvitation = async (invitationId, status) => {
+  //   console.log(invitationId, status);
+  //   const apiRes = await authInstance.patch("/invitations", {
+  //     invitationId: invitationId,
+  //     status: status,
+  //   });
+  //   console.log(apiRes);
+  // };
+
+  const handleInvitation = useCallback(async (invitationId, status) => {
     console.log(invitationId, status);
     const apiRes = await authInstance.patch("/invitations", {
       invitationId: invitationId,
       status: status,
     });
     console.log(apiRes);
-  };
+  }, []);
 
   useEffect(() => {
     async function getMessages() {
@@ -289,17 +326,13 @@ function Navbar() {
         const res = await authInstance.get("/invitations");
         console.log(res);
         setInvitedMessages(res.data.result.invitations);
-        const validInvitationNumber = res.data.result.invitations.filter(
-          (message) => message.status === "ACCEPTED"
-        ).length;
-        setValidInvitationNumber(validInvitationNumber);
       } catch (error) {
         console.log(error);
       }
     }
 
     getMessages();
-  }, []);
+  }, [handleInvitation]);
 
   return (
     <Container>
@@ -307,79 +340,91 @@ function Navbar() {
         <img src={logo} alt="logo" />
         <div onClick={() => navigate("/")}>YOUR'S JEJU</div>
       </LeftBox>
-      {window.location.href.includes("/schedule/") && (
-        <RightBox>
+
+      <RightBox>
+        {localStorage.getItem("accessToken") && (
           <span>
             <IoMdPerson onClick={() => navigate("/mypage")} />
           </span>
+        )}
+
+        {window.location.href.includes("/schedule/") && (
           <span>
             <GoMail onClick={() => handleMailBoxClick()} />
           </span>
-          {mailBoxOpen && (
-            <MailModalBox>
-              {!validInvitationNumber ? (
-                <EmptyState>
-                  <EmptyMessage>not yet invitations arrival</EmptyMessage>
-                  <IconWrapper>
-                    <TbMoodLookUp />
-                  </IconWrapper>
-                </EmptyState>
-              ) : (
-                <>
-                  <Title>
-                    <p>invitations to you</p>
-                  </Title>
-                  <MessageList>
-                    {invitedMessages.map((message) =>
-                      message.status === "NOT_READ" ? (
-                        <MessageItem key={message.id}>
-                          <TextBox>
-                            <p>
-                              {message.schedule.title}
-                              &nbsp;
-                            </p>
-                            <p>from {message.sender.name}</p>
-                          </TextBox>
+        )}
 
-                          <ButtonBox>
-                            <AcceptButton
-                              onClick={() =>
-                                handleInvitation(message.id, "ACCEPT")
-                              }
-                            >
-                              accept
-                            </AcceptButton>
-                            <DenyButton>deny</DenyButton>
-                          </ButtonBox>
-                        </MessageItem>
-                      ) : (
-                        <></>
-                      )
-                    )}
-                  </MessageList>
-                </>
-              )}
-            </MailModalBox>
-          )}
-
+        {mailBoxOpen && (
+          <MailModalBox>
+            {console.log(invitedMessages)}
+            {!invitedMessages.length ? (
+              <EmptyState>
+                <EmptyMessage>not yet invitations arrival</EmptyMessage>
+                <IconWrapper>
+                  <TbMoodLookUp />
+                </IconWrapper>
+              </EmptyState>
+            ) : (
+              <>
+                <Title>
+                  <p>invitations to you</p>
+                </Title>
+                <MessageList>
+                  {invitedMessages.map((message) => (
+                    <MessageItem key={message.id} status={message.status}>
+                      {console.log(message)}
+                      <TextBox>
+                        <p>
+                          {message.schedule.title}
+                          &nbsp;
+                        </p>
+                        <p>from {message.sender.name}</p>
+                      </TextBox>
+                      <ButtonBox>
+                        <AcceptButton
+                          onClick={() => handleInvitation(message.id, "ACCEPT")}
+                          status={message.status}
+                        >
+                          accept
+                        </AcceptButton>
+                        <DenyButton status={message.status}>deny</DenyButton>
+                      </ButtonBox>
+                    </MessageItem>
+                  ))}
+                </MessageList>
+              </>
+            )}
+          </MailModalBox>
+        )}
+        {window.location.href.includes("/schedule/") && (
           <span>
             <IoShareSocialOutline onClick={() => handleShareClick()} />
           </span>
-          {shareBoxOpen && (
-            <ShareModalBox>
-              <Title>Share with your travel group</Title>
-              <InviteForm onSubmit={(e) => handleShareSubmit(e)}>
-                <InputField
-                  type="email"
-                  placeholder="Enter the email you wish to invite"
-                  onChange={(e) => setEmailAddress(e.target.value)}
-                />
-                <InviteButton type="submit">Invite</InviteButton>
-              </InviteForm>
-            </ShareModalBox>
-          )}
-        </RightBox>
-      )}
+        )}
+        {shareBoxOpen && (
+          <ShareModalBox>
+            <Title>Share with your travel group</Title>
+            <InviteForm onSubmit={(e) => handleShareSubmit(e)}>
+              <InputField
+                type="email"
+                placeholder="Enter the email you wish to invite"
+                onChange={(e) => setEmailAddress(e.target.value)}
+              />
+              <InviteButton type="submit">Invite</InviteButton>
+            </InviteForm>
+          </ShareModalBox>
+        )}
+        <span>
+          <GrHelpBook
+            onClick={() => setHelpBoxOpen((prev) => setHelpBoxOpen(!prev))}
+          />
+        </span>
+        {
+          //TODO: 도움말 모달 열기
+          helpBoxOpen && <HelpModal />
+        }
+        {/* <HelpModal /> */}
+      </RightBox>
     </Container>
   );
 }

@@ -14,6 +14,7 @@ import {
 } from "../../../utils/sendMessages";
 import useSendUpdateMessage from "../../../Hooks/useUpdateMessage";
 import ModifyingMainBox from "./DayScheduleSlideModifyBox";
+import ConfirmModal from "./../../../components/ConfirmModal";
 
 // 애니메이션 정의: 오른쪽에서 나오는 애니메이션
 const slideInFromRight = keyframes`
@@ -159,6 +160,7 @@ function DayScheduleSlide(socketClient) {
   // console.log(socketClient);
   // const socketClient = socketClient;
   const [isModifying, setIsModifying] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   function modifyClickHandler() {
     setIsModifying(true);
@@ -171,7 +173,7 @@ function DayScheduleSlide(socketClient) {
       scheduleId: currentSchedule.id,
       eventId: currentEvent.id,
     };
-    if (!confirm("확인 또는 취소를 눌러주세요.")) {
+    if (!confirm("Please click Confirm or Cancel.")) {
       return;
     } else {
       SendDeleteMessage(JSON.stringify(chatMessage), socketClient.socketClient);
@@ -207,7 +209,7 @@ function DayScheduleSlide(socketClient) {
                 delete
               </Button>
             </ButtonBox>
-
+            {/* <ConfirmModal status={isDeleting} /> */}
             <TitleBox>
               <h1>{currentEvent.title}</h1>
             </TitleBox>
