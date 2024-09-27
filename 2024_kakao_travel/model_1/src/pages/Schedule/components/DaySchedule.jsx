@@ -13,6 +13,7 @@ import { ResizableBox } from "react-resizable";
 import DayScheduleSlide from "./DayScheduleSlide";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import { IoIosCloseCircleOutline } from "react-icons/io";
+import { SendCreateMessage } from "../../../utils/sendMessages";
 
 // Styled Components 정의
 const ScheduleContainer = styled.div`
@@ -120,7 +121,7 @@ const DraggableScheduleCardComponent = ({
   onResizeStop,
   sendDeleteMessage,
 }) => {
-  console.log("드래그 아이템에서 schedule이란?", schedule);
+  // console.log("드래그 아이템에서 schedule이란?", schedule);
   const [isResizing, setIsResizing] = useState(false);
   const [tempHeight, setTempHeight] = useState(height); // 로컬 상태로 임시 높이 관리
   const [{ isDragging }, drag] = useDrag({
@@ -182,16 +183,21 @@ const DraggableScheduleCardComponent = ({
         }
       >
         <ScheduleTitle>{schedule.title}</ScheduleTitle>
-        <button onClick={(e) => sendDeleteMessage()}>
+        {/* 삭제 버튼은 상세정보에서 대체 */}
+        {/* <button onClick={(e) => sendDeleteMessage(JSON.stringify({
+          id: schedule.id,
+          eventId: 
+        }))}>
           <IoIosCloseCircleOutline></IoIosCloseCircleOutline>
-        </button>
+        </button> */}
       </ResizableBox>
     </DraggableScheduleCard>
   );
 };
 
 // HourBlockComponent
-const HourBlockComponent = ({ hour, day, children, onDrop }) => {
+const HourBlockComponent = ({ hour, day, children, onDrop, socketClient }) => {
+  const { currentSchedule } = useSelector((state) => state.schedules);
   const [{ isOver }, drop] = useDrop({
     accept: ["schedule", "searchItem"],
     drop: (item) => {
@@ -209,7 +215,22 @@ const HourBlockComponent = ({ hour, day, children, onDrop }) => {
         <HourText>
           {hour}:00 - {hour + 1}:00
         </HourText>
-        <button>
+        <button
+          onClick={() => {
+            //TODO: 1시간 이벤트 추가
+            const chatMessage = JSON.stringify({
+              scheduleId: currentSchedule.scheduleId,
+              dayEventsId: currentSchedule.dayEventsId,
+              title: "empty title",
+              description: "desciption",
+              startTime: "hour" + ":00",
+              endTime: hour + 1 + ":00",
+              locationContentId: "",
+              locationContentTypeId: "",
+            });
+            SendCreateMessage(chatMessage, socketClient);
+          }}
+        >
           <IoIosAddCircleOutline />
         </button>
       </div>
@@ -225,6 +246,7 @@ const DaySchedule = ({
   sendCreateMessage,
   sendUpdateMessage,
   sendDeleteMessage,
+  socketClient,
 }) => {
   const dispatch = useDispatch();
   const schedules = useSelector((state) => state.schedules.schedules);
@@ -446,6 +468,7 @@ const DaySchedule = ({
           hour={index}
           onDrop={handleDrop}
           day={day}
+          socketClient={socketClient}
         >
           {eventsByHour[index] &&
             eventsByHour[index].map((event) => {
@@ -472,7 +495,7 @@ const DaySchedule = ({
         </HourBlockComponent>
       ))}
 
-      <DayScheduleSlide></DayScheduleSlide>
+      <DayScheduleSlide socketClient={socketClient}></DayScheduleSlide>
     </ScheduleContainer>
   );
 };

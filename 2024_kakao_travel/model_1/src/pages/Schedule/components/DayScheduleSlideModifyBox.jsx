@@ -8,12 +8,8 @@ import {
   setCurrentSchedule,
   setEventDetailOpen,
 } from "../../../state/schedules/schedulesSlice";
-import {
-  SendDeleteMessage,
-  SendUpdateMessage,
-} from "../../../utils/sendMessages";
+import { SendUpdateMessage } from "../../../utils/sendMessages";
 import useSendUpdateMessage from "../../../Hooks/useUpdateMessage";
-import ModifyingMainBox from "./DayScheduleSlideModifyBox";
 
 // 애니메이션 정의: 오른쪽에서 나오는 애니메이션
 const slideInFromRight = keyframes`
@@ -148,76 +144,69 @@ const DescriptionBox = styled.div`
   /* background-color: #ffcc78; */
 `;
 
-function DayScheduleSlide(socketClient) {
-  const {
-    eventDetailOpen,
-    currentEvent,
-    firstSchedulePageVisit,
-    currentSchedule,
-  } = useSelector((state) => state.schedules);
-  const dispatch = useDispatch();
-  // console.log(socketClient);
-  // const socketClient = socketClient;
-  const [isModifying, setIsModifying] = useState(false);
-
-  function modifyClickHandler() {
-    setIsModifying(true);
-    console.log("modify");
-  }
-
-  // send 메시지 훅 만들까말까
-  function deleteClickHandler() {
+function ModifyingMainBox(props) {
+  // const [chatMessage, setChatMessage] = useState()
+  const { currentEvent, setIsModifying, currentSchedule, socketClient } = props;
+  // const { socketClient } = useSelector((state) => state.schedules);
+  const [chatMessage, setChatMessage] = useState({});
+  const [newTitle, setNewTitle] = useState(
+    currentEvent ? currentEvent.title : ""
+  );
+  const [newDescription, setNewDescription] = useState(
+    currentEvent ? currentEvent.description : ""
+  );
+  function modifyCompleteClickHandler() {
     const chatMessage = {
       scheduleId: currentSchedule.id,
       eventId: currentEvent.id,
+      title: newTitle,
+      description: newDescription,
+      startTime: currentEvent.startTime,
+      endTime: currentEvent.endTime,
+      locationContentId: "",
+      locationContentTypeId: "",
     };
-    SendDeleteMessage(JSON.stringify(chatMessage), socketClient.socketClient);
-    // dispatch(deleteDayEvent(currentSchedule.id, currentEvent.id));
+    setChatMessage(chatMessage);
+    console.log(socketClient);
+    // useSendUpdateMessage(JSON.stringify(chatMessage));
+    SendUpdateMessage(JSON.stringify(chatMessage), socketClient);
+    setIsModifying(false);
   }
-
   return (
-    <Container
-      $isVisible={eventDetailOpen}
-      // $isFirst={first}
-    >
-      <MinButton onClick={() => dispatch(setEventDetailOpen(false))}>
-        {" "}
-        {">>"}{" "}
-      </MinButton>
-      {currentEvent &&
-        (isModifying ? (
-          <ModifyingMainBox
-            currentEvent={currentEvent}
-            setIsModifying={setIsModifying}
-            currentSchedule={currentSchedule}
-            socketClient={socketClient}
-          />
-        ) : (
-          <MainBox>
-            <ButtonBox>
-              <Button onClick={modifyClickHandler} $buttonType="modify">
-                modify
-              </Button>
-              <Button onClick={deleteClickHandler} $buttonType="delete">
-                delete
-              </Button>
-            </ButtonBox>
+    currentEvent && (
+      <MainBox>
+        <ButtonBox>
+          <Button
+            onClick={() => modifyCompleteClickHandler()}
+            $buttonType="complete"
+          >
+            complete
+          </Button>
+        </ButtonBox>
 
-            <TitleBox>
-              <h1>{currentEvent.title}</h1>
-            </TitleBox>
-            <DurationBox>
-              <span>
-                {currentEvent.startTime} ~ {currentEvent.endTime}
-              </span>
-            </DurationBox>
-            <DescriptionBox>
-              <span>{currentEvent.description}</span>
-            </DescriptionBox>
-          </MainBox>
-        ))}
-    </Container>
+        <TitleBox>
+          <input
+            type="text"
+            name="title"
+            value={newTitle} // 이후로는 이걸로 관리
+            onChange={(e) => setNewTitle(e.target.value)}
+          />
+        </TitleBox>
+        <DurationBox>
+          <span>
+            {currentEvent.startTime} ~ {currentEvent.endTime}
+          </span>
+        </DurationBox>
+        <DescriptionBox>
+          <textarea
+            name="description"
+            value={newDescription || ""} // 이후로는 이걸로 관리
+            onChange={(e) => setNewDescription(e.target.value)}
+          ></textarea>
+        </DescriptionBox>
+      </MainBox>
+    )
   );
 }
 
-export default DayScheduleSlide;
+export default ModifyingMainBox;

@@ -41,7 +41,8 @@ const initialState = {
   makeModalOpen: false,
   currentEvent: null,
   getSchedulesStatus: "", // getSchedules API 호출 상태
-  // socketClient: null,
+  socketClient: null,
+  firstSchedulePageVisit: false,
 };
 
 const schedulesSlice = createSlice({
@@ -140,9 +141,12 @@ const schedulesSlice = createSlice({
     setMakeModalOpen: (state, action) => {
       state.makeModalOpen = action.payload;
     },
-    // setSocketClient: (state, action) => {
-    //   state.socketClient = action.payload;
-    // }
+    setSocketClient: (state, action) => {
+      state.socketClient = action.payload;
+    },
+    setFirstSchedulePageVisit: (state, action) => {
+      state.firstSchedulePageVisit = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(getSchedules.pending, (state) => {
@@ -171,6 +175,7 @@ export const {
   setCurrentEvent,
   setSchedules,
   setMakeModalOpen,
-  // setSocketClient,
+  setSocketClient,
+  setFirstSchedulePageVisit,
 } = schedulesSlice.actions;
 export default schedulesSlice.reducer;

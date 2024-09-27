@@ -15,30 +15,38 @@ import SockJS from "sockjs-client/dist/sockjs";
 import { Stomp } from "@stomp/stompjs";
 import {
   getSchedules,
+  setCurrentSchedule,
+  setFirstSchedulePageVisit,
   // setSocketClient,
 } from "../../state/schedules/schedulesSlice";
+import { authInstance } from "../../api/axiosInstance";
 
 function SchedulePage() {
   const [stompClient, setStompClient] = useState(null);
   const [eventId, setEventId] = useState("");
-  const [scheduleId, setScheduleId] = useState();
-  const [dayEventsId, setDayEventId] = useState();
-  const [token, setToken] = useState(
-    localStorage.getItem("accessToken")
-    // "Bearer 123" // TODO: token 받아서 ��기
-  );
+  const [token, setToken] = useState(localStorage.getItem("accessToken"));
 
   const navigate = useNavigate();
   const data = useSelector((state) => state.schedules.schedules);
   const currentSchedule = useSelector(
     (state) => state.schedules.currentSchedule
   );
-  console.log(data);
-
   const dispatch = useDispatch();
 
-  const handleSaveClick = () => {
-    //TODO: 스케줄 수정 api, reqData 중 dayEvents만 = schedules.schedules로 바꿔서 실행
+  const addDayEvents = async () => {
+    const reqData = {
+      title: currentSchedule.title,
+      description: currentSchedule.description,
+      period: currentSchedule.period + 1,
+      startDate: currentSchedule.startDate,
+    };
+    console.log(reqData);
+    const apiRes = await authInstance.patch(
+      "/schedules/" + currentSchedule.id,
+      reqData
+    );
+    console.log(apiRes);
+    // dispatch(setCurrentSchedule(apiRes.schedules));
   };
 
   const sendCreateMessage = (chatMessage) => {
@@ -117,6 +125,11 @@ function SchedulePage() {
   useEffect(() => {
     console.log(currentSchedule);
     dispatch(getSearchItems({ page: 1, size: 10 }));
+    // dispatch(setFirstSchedulePageVisit(true));
+
+    // return () => {
+    //   dispatch(setFirstSchedulePageVisit(false));
+    // };
   }, []);
 
   useEffect(() => {
@@ -177,25 +190,22 @@ function SchedulePage() {
       </S.MenuBox>
       {data && (
         <S.ScheduleBox>
+          {console.log(stompClient)}
           {data.map((dayEvents, idx) => (
             <DaySchedule
               key={dayEvents.day + idx}
               day={dayEvents.day}
               dayEventsId={dayEvents.id}
-              // scheduleList={dayEvents.schedules}
-              // onScheduleUpdate={handleScheduleUpdate}
               sendCreateMessage={sendCreateMessage}
               sendUpdateMessage={sendUpdateMessage}
               sendDeleteMessage={sendDeleteMessage}
+              socketClient={stompClient} // props driling to dayschedule -> dayscheduleSlider -> modifyingBox
             />
           ))}
           <S.FloatingButton onClick={() => navigate("/map/1")}>
             <FaMapMarkerAlt />
           </S.FloatingButton>
-          {/* <S.FloatingSave onClick={() => handleSaveClick()}>
-            <IoIosSave />
-          </S.FloatingSave> */}
-          <S.DayEventsAdditionButton>
+          <S.DayEventsAdditionButton onClick={() => addDayEvents()}>
             <IoIosAddCircleOutline />
           </S.DayEventsAdditionButton>
         </S.ScheduleBox>
