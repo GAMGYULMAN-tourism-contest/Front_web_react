@@ -248,6 +248,7 @@ function Navbar() {
   const [shareBoxOpen, setShareBoxOpen] = useState(false);
   const [emailAddress, setEmailAddress] = useState("");
   const [invitedMessages, setInvitedMessages] = useState([]);
+  const [validInvitationNumber, setValidInvitationNumber] = useState("");
   const { currentSchedule } = useSelector((state) => state.schedules);
 
   const handleMailBoxClick = () => {
@@ -273,6 +274,14 @@ function Navbar() {
     setShareBoxOpen(false);
     setEmailAddress("");
   };
+  const handleInvitation = async (invitationId, status) => {
+    console.log(invitationId, status);
+    const apiRes = await authInstance.patch("/invitations", {
+      invitationId: invitationId,
+      status: status,
+    });
+    console.log(apiRes);
+  };
 
   useEffect(() => {
     async function getMessages() {
@@ -280,6 +289,10 @@ function Navbar() {
         const res = await authInstance.get("/invitations");
         console.log(res);
         setInvitedMessages(res.data.result.invitations);
+        const validInvitationNumber = res.data.result.invitations.filter(
+          (message) => message.status === "ACCEPTED"
+        ).length;
+        setValidInvitationNumber(validInvitationNumber);
       } catch (error) {
         console.log(error);
       }
@@ -294,7 +307,7 @@ function Navbar() {
         <img src={logo} alt="logo" />
         <div onClick={() => navigate("/")}>YOUR'S JEJU</div>
       </LeftBox>
-      {window.location.href.includes("http://localhost:5173/schedule/") && (
+      {window.location.href.includes("/schedule/") && (
         <RightBox>
           <span>
             <IoMdPerson onClick={() => navigate("/mypage")} />
@@ -304,7 +317,7 @@ function Navbar() {
           </span>
           {mailBoxOpen && (
             <MailModalBox>
-              {!invitedMessages.length ? (
+              {!validInvitationNumber ? (
                 <EmptyState>
                   <EmptyMessage>not yet invitations arrival</EmptyMessage>
                   <IconWrapper>
@@ -317,22 +330,32 @@ function Navbar() {
                     <p>invitations to you</p>
                   </Title>
                   <MessageList>
-                    {invitedMessages.map((message) => (
-                      <MessageItem key={message.id}>
-                        <TextBox>
-                          <p>
-                            {message.schedule.title}
-                            &nbsp;
-                          </p>
-                          <p>from {message.sender.name}</p>
-                        </TextBox>
+                    {invitedMessages.map((message) =>
+                      message.status === "NOT_READ" ? (
+                        <MessageItem key={message.id}>
+                          <TextBox>
+                            <p>
+                              {message.schedule.title}
+                              &nbsp;
+                            </p>
+                            <p>from {message.sender.name}</p>
+                          </TextBox>
 
-                        <ButtonBox>
-                          <AcceptButton>accept</AcceptButton>
-                          <DenyButton>deny</DenyButton>
-                        </ButtonBox>
-                      </MessageItem>
-                    ))}
+                          <ButtonBox>
+                            <AcceptButton
+                              onClick={() =>
+                                handleInvitation(message.id, "ACCEPT")
+                              }
+                            >
+                              accept
+                            </AcceptButton>
+                            <DenyButton>deny</DenyButton>
+                          </ButtonBox>
+                        </MessageItem>
+                      ) : (
+                        <></>
+                      )
+                    )}
                   </MessageList>
                 </>
               )}

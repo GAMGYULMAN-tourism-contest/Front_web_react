@@ -14,6 +14,105 @@ import DayScheduleSlide from "./DayScheduleSlide";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import { SendCreateMessage } from "../../../utils/sendMessages";
+import { authInstance } from "../../../api/axiosInstance";
+
+// Styled Components 정의
+// const ScheduleContainer = styled.div`
+//   flex: 0 0 40%; /* 요소가 줄어들지 않고 40% 너비를 유지하도록 설정 */
+//   width: 40%;
+//   display: grid;
+//   grid-template-columns: 1fr;
+//   position: relative;
+//   margin: 20px 0px 20px 20px;
+//   background-color: #f9f9f9; /* 심플한 배경색 */
+//   border-radius: 8px; /* 부드러운 모서리 */
+//   padding: 10px;
+//   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 최소한의 그림자 */
+//   overflow-y: auto;
+// `;
+
+// const HourBlock = styled.div`
+//   width: 100%;
+//   border: 1px solid #e0e0e0; /* 심플한 경계선 */
+//   position: relative;
+//   height: 60px;
+//   background-color: ${({ $isOver }) =>
+//     $isOver ? "#f5f5f5" : "#fafafa"}; /* 은은한 색 변화 */
+//   transition: background-color 0.3s ease;
+// `;
+
+// const HourText = styled.p`
+//   margin: 0;
+//   padding: 5px;
+//   font-size: 13px;
+//   color: #333; /* 텍스트를 선명하게 */
+//   font-weight: 400;
+// `;
+
+// const DraggableScheduleCard = styled.div`
+//   position: absolute;
+//   background-color: ${({ $isDragging }) =>
+//     $isDragging ? "#e0e0e0" : "#ffcc78"};
+//   color: #333; /* 다소 어두운 텍스트 색 */
+//   cursor: move;
+//   width: 70%;
+//   top: ${({ $top }) => `${$top}px`};
+//   left: 28%;
+//   height: ${({ $height }) => `${$height}px`};
+//   opacity: ${({ $isDragging }) => ($isDragging ? 0.5 : 1)};
+//   transition: height 0.3s ease, background-color 0.3s ease;
+//   z-index: ${({ $isDragging }) => ($isDragging ? 0 : 1)};
+//   border-radius: 8px;
+//   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* 심플한 그림자 */
+
+//   button {
+//     position: absolute;
+//     left: 90%;
+//     top: 5px;
+//     background-color: transparent;
+//     width: 25px;
+//     height: 25px;
+//     font-size: 12px;
+//     border: none;
+//     outline: none;
+//     cursor: pointer;
+//     opacity: 0.6;
+//     transition: opacity 0.2s;
+//     border-radius: 50%;
+
+//     &:hover {
+//       opacity: 1;
+//     }
+
+//     svg {
+//       font-size: 18px;
+//       position: relative;
+//       right: 2px;
+//       top: 1px;
+//       color: #ff663c;
+//     }
+//   }
+// `;
+
+// const ScheduleTitle = styled.div`
+//   position: absolute;
+//   top: 0;
+//   left: 5%;
+//   right: 0;
+//   width: 90%;
+//   height: 100%;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   pointer-events: none;
+//   word-break: keep-all;
+//   text-align: center;
+//   font-size: 14px; /* 적당한 크기 */
+//   font-weight: 500; /* 가독성 좋은 텍스트 */
+//   color: #333;
+// `;
+
+// Styled Components 정의
 
 // Styled Components 정의
 const ScheduleContainer = styled.div`
@@ -219,11 +318,14 @@ const HourBlockComponent = ({ hour, day, children, onDrop, socketClient }) => {
           onClick={() => {
             //TODO: 1시간 이벤트 추가
             const chatMessage = JSON.stringify({
-              scheduleId: currentSchedule.scheduleId,
-              dayEventsId: currentSchedule.dayEventsId,
+              scheduleId: currentSchedule.id,
+              dayEventsId:
+                currentSchedule.dayEvents.find(
+                  (dayEvent) => dayEvent.day === day
+                )?.id || null,
               title: "empty title",
               description: "desciption",
-              startTime: "hour" + ":00",
+              startTime: hour + ":00",
               endTime: hour + 1 + ":00",
               locationContentId: "",
               locationContentTypeId: "",
@@ -258,9 +360,19 @@ const DaySchedule = ({
   // console.log(schedules, dayData, events);
 
   const handleDrop = (id, title, newStartTime, newDay, type) => {
+    // 이전 날짜의 기존 이벤트 추적
+    let prevDayEvent;
+    schedules.map((dayEvent) => {
+      for (let event in dayEvent.events) {
+        // console.log(dayEvent.events[event]);
+        if (dayEvent.events[event].id === id) {
+          prevDayEvent = dayEvent.events[event];
+        }
+      }
+    });
+    dispatch(setCurrentEvent(prevDayEvent));
     const existingEvent = events.find((event) => event.id === id);
-    console.log(id, title, newStartTime, newDay, type, existingEvent);
-
+    // console.log(id, title, newStartTime, newDay, type, existingEvent, events);
     if (existingEvent) {
       // 기존 이벤트의 지속 시간을 계산
       const duration =
@@ -297,7 +409,6 @@ const DaySchedule = ({
 
       dispatch(updateDayEvent({ day: newDay, updatedEvent, originDay: day }));
       // 소켓 메시지 뿌리기
-      console.log(updatedEvent);
       const chatMessage = JSON.stringify({
         scheduleId: currentSchedule.id,
         eventId: updatedEvent.id,
@@ -309,7 +420,7 @@ const DaySchedule = ({
         locationContentId: "",
         locationContentTypeId: "",
       });
-      console.log(chatMessage);
+
       sendUpdateMessage(chatMessage);
     } else {
       // 기존 이벤트 현재 날짜에서 못 찾은 경우 (날짜이동 or 검색결과 드래그)
@@ -333,16 +444,6 @@ const DaySchedule = ({
       }
       // 날짜이동 케이스
       else {
-        // 이전 날짜의 기존 이벤트 추적
-        let prevDayEvent;
-        schedules.map((dayEvent) => {
-          for (let event in dayEvent.events) {
-            // console.log(dayEvent.events[event]);
-            if (dayEvent.events[event].id === id) {
-              prevDayEvent = dayEvent.events[event];
-            }
-          }
-        });
         // 기존 이벤트의 지속 시간을 계산
         const duration =
           parseTimeToHour(prevDayEvent.endTime) -
@@ -372,22 +473,13 @@ const DaySchedule = ({
       }
 
       const newEvent = {
-        id: `schedule-${Date.now()}`,
+        id: prevDayEvent.id,
         startTime: newStartTime,
         endTime: newEndTime,
         title,
       };
-
-      let delEvent;
-      // 이전 데이 스케줄에 있던 이벤트 삭제
-      schedules.map((dayEvent) => {
-        if (dayEvent.day !== day) {
-          delEvent = dayEvent.events.find((event) => event.id === id);
-        }
-      });
-
       dispatch(addDayEvent({ day: newDay, newEvent }));
-      dispatch(deleteDayEvent({ event: delEvent }));
+      dispatch(deleteDayEvent({ event: prevDayEvent }));
 
       // 소켓 메시지 뿌리기 - 추가
       const chatMessageCreate = JSON.stringify({
@@ -405,7 +497,7 @@ const DaySchedule = ({
       // 소켓 메시지 뿌리기 - 삭제
       const chatMessageDel = JSON.stringify({
         scheduleId: currentSchedule.id,
-        eventId: delEvent.id,
+        eventId: prevDayEvent.id,
       });
       sendDeleteMessage(chatMessageDel);
     }
@@ -442,6 +534,23 @@ const DaySchedule = ({
     });
     console.log(chatMessage);
     sendUpdateMessage(chatMessage);
+  };
+
+  // 하루 일정 다 삭제
+  const deleteDayEvents = async () => {
+    const reqData = {
+      title: currentSchedule.title,
+      description: currentSchedule.description,
+      period: currentSchedule.period - 1,
+      startDate: currentSchedule.startDate,
+    };
+    console.log(reqData);
+    const apiRes = await authInstance.patch(
+      "/schedules/" + currentSchedule.id,
+      reqData
+    );
+    console.log(apiRes);
+    // dispatch(setCurrentSchedule(apiRes.schedules));
   };
 
   // 각 이벤트를 시간별로 그룹화하여 메모이제이션

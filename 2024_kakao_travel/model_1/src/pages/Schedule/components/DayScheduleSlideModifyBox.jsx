@@ -145,10 +145,10 @@ const DescriptionBox = styled.div`
 `;
 
 function ModifyingMainBox(props) {
-  // const [chatMessage, setChatMessage] = useState()
   const { currentEvent, setIsModifying, currentSchedule, socketClient } = props;
-  // const { socketClient } = useSelector((state) => state.schedules);
-  const [chatMessage, setChatMessage] = useState({});
+  const dispatch = useDispatch();
+  // const [chatMessage, setChatMessage] = useState()
+  // const [chatMessage, setChatMessage] = useState({});
   const [newTitle, setNewTitle] = useState(
     currentEvent ? currentEvent.title : ""
   );
@@ -156,8 +156,19 @@ function ModifyingMainBox(props) {
     currentEvent ? currentEvent.description : ""
   );
   function modifyCompleteClickHandler() {
+    // 현재 이벤트의 날짜 아이디 가져오기
+    let curentEventDay;
+    currentSchedule.dayEvents.map((day) => {
+      console.log(day);
+      if (day.events.find((event) => event.id === currentEvent.id)) {
+        curentEventDay = day.id;
+        return;
+      }
+    });
+
     const chatMessage = {
       scheduleId: currentSchedule.id,
+      dayEventsId: curentEventDay,
       eventId: currentEvent.id,
       title: newTitle,
       description: newDescription,
@@ -166,11 +177,11 @@ function ModifyingMainBox(props) {
       locationContentId: "",
       locationContentTypeId: "",
     };
-    setChatMessage(chatMessage);
-    console.log(socketClient);
-    // useSendUpdateMessage(JSON.stringify(chatMessage));
-    SendUpdateMessage(JSON.stringify(chatMessage), socketClient);
+
+    console.log(chatMessage, currentSchedule);
     setIsModifying(false);
+    SendUpdateMessage(JSON.stringify(chatMessage), socketClient);
+    dispatch(setEventDetailOpen(false));
   }
   return (
     currentEvent && (

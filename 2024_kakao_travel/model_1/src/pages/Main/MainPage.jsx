@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { setSchedules } from "../../state/schedules/schedulesSlice";
 import { useDispatch } from "react-redux";
 import { setMakeModalOpen } from "../../state/schedules/schedulesSlice";
+import { DefaultButton } from "../../components";
 
 function MainPage() {
   const dispatch = useDispatch();
@@ -31,10 +32,10 @@ function MainPage() {
               navigate("/schedule/1");
             }}
           >
-            make new schedule
+            <DefaultButton inText="make new schedule"></DefaultButton>
           </S.MainFeatItem>
           <S.MainFeatItem onClick={() => navigate("/mypage")}>
-            view my schedules
+            <DefaultButton inText="view my schedules"></DefaultButton>
           </S.MainFeatItem>
         </S.MainFeatBox>
       </S.TopBox>

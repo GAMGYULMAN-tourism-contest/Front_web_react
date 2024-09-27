@@ -68,22 +68,22 @@ const MainFeatBox = styled.div`
 const MainFeatItem = styled.div`
   width: 40%;
   height: 25vh;
-  background-color: #fdf4ea;
+  /* background-color: #fdf4ea;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
+  align-items: center; */
   /* font-size: 30px; */
   font-size: 4vh;
   cursor: pointer;
-  opacity: 0.8;
-  border-radius: 20px;
-  &:hover {
+  /* opacity: 0.8;
+  border-radius: 20px; */
+  /* &:hover {
     opacity: 1;
     scale: 1.02;
     transition: opacity 0.8s ease;
-  }
-  box-shadow: 14px 15px 25px 0px rgba(252, 197, 114, 1);
+  } */
+  /* box-shadow: 14px 15px 25px 0px rgba(252, 197, 114, 1); */
 `;
 
 export {

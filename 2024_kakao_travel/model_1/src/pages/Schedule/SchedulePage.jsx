@@ -33,6 +33,7 @@ function SchedulePage() {
   );
   const dispatch = useDispatch();
 
+  // 날짜 하루 추가
   const addDayEvents = async () => {
     const reqData = {
       title: currentSchedule.title,
@@ -49,6 +50,7 @@ function SchedulePage() {
     // dispatch(setCurrentSchedule(apiRes.schedules));
   };
 
+  // 스톰프 send 3 함수 (props 한번까지 전달해서 사용, 그 아래로는 util 함수사용)
   const sendCreateMessage = (chatMessage) => {
     console.log(eventId);
     if (stompClient) {

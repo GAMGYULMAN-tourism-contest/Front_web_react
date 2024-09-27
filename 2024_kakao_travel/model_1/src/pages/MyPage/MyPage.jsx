@@ -95,16 +95,18 @@ function MyPage() {
           <S.MainBoxInner>
             {mySchedules.map((item) => {
               return (
-                <ScheduleBlock
-                  key={item.id}
-                  id={item.id}
-                  title={item.title}
-                  description={item.description}
-                  period={item.period}
-                  startDate={item.startDate}
-                  endDate={item.endDate}
-                  // onclick(내비게이트 + 그 스케줄 상세 정보 가져오기)은 ScheduleBlock 컴포넌트에서 구성함
-                />
+                item.role === "OWNER" && (
+                  <ScheduleBlock
+                    key={item.id}
+                    id={item.id}
+                    title={item.title}
+                    description={item.description}
+                    period={item.period}
+                    startDate={item.startDate}
+                    endDate={item.endDate}
+                    // onclick(내비게이트 + 그 스케줄 상세 정보 가져오기)은 ScheduleBlock 컴포넌트에서 구성함
+                  />
+                )
               );
             })}
           </S.MainBoxInner>
@@ -115,7 +117,24 @@ function MyPage() {
           <span>invited shedules</span>
         </S.TopBox>
         <S.MainBox>
-          <S.MainBoxInner>{/* {map돌리기} */}</S.MainBoxInner>
+          <S.MainBoxInner>
+            {mySchedules.map((item) => {
+              return (
+                item.role !== "OWNER" && (
+                  <ScheduleBlock
+                    key={item.id}
+                    id={item.id}
+                    title={item.title}
+                    description={item.description}
+                    period={item.period}
+                    startDate={item.startDate}
+                    endDate={item.endDate}
+                    // onclick(내비게이트 + 그 스케줄 상세 정보 가져오기)은 ScheduleBlock 컴포넌트에서 구성함
+                  />
+                )
+              );
+            })}
+          </S.MainBoxInner>
         </S.MainBox>
       </S.SchedulesBox>
     </S.Container>

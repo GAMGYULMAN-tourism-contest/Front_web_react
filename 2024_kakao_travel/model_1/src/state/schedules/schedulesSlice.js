@@ -7,7 +7,9 @@ export const getSchedules = createAsyncThunk(
   "schedules/getSchedules",
   async function getMySchedules(scheduleId) {
     const res = await authInstance.get("/schedules/" + scheduleId);
-    return res.data.result.dayEvents;
+    // return res.data.result.dayEvents;
+    console.log(res.data.result);
+    return res.data.result;
   }
 );
 
@@ -122,6 +124,8 @@ const schedulesSlice = createSlice({
     deleteDayEvent: (state, action) => {
       const { event } = action.payload;
       state.schedules.map((dayEvent) => {
+        console.log("여기");
+        console.log(dayEvent);
         dayEvent.events = dayEvent.events.filter((e) => e.id !== event.id);
         return dayEvent;
       });
@@ -154,7 +158,8 @@ const schedulesSlice = createSlice({
     });
     builder.addCase(getSchedules.fulfilled, (state, action) => {
       console.log(action.payload);
-      state.schedules = action.payload;
+      state.schedules = action.payload.dayEvents;
+      state.currentSchedule = action.payload;
       state.getSchedulesStatus = "fulfilled";
     });
     builder.addCase(getSchedules.rejected, (state) => {

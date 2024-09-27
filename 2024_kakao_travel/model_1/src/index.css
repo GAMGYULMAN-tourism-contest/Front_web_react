@@ -16,6 +16,11 @@ body {
   margin: 0;
   box-sizing: border-box;
   font-family: 'LINESeedKR-Bd',sans-serif;
+  /* 텍스트 드래그 방지 */
+  -webkit-user-select:none;
+  -moz-user-select:none;
+  -ms-user-select:none;
+  user-select:none
 }
 
 

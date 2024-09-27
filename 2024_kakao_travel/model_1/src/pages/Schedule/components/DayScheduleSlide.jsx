@@ -171,8 +171,13 @@ function DayScheduleSlide(socketClient) {
       scheduleId: currentSchedule.id,
       eventId: currentEvent.id,
     };
-    SendDeleteMessage(JSON.stringify(chatMessage), socketClient.socketClient);
-    // dispatch(deleteDayEvent(currentSchedule.id, currentEvent.id));
+    if (!confirm("확인 또는 취소를 눌러주세요.")) {
+      return;
+    } else {
+      SendDeleteMessage(JSON.stringify(chatMessage), socketClient.socketClient);
+      // dispatch(deleteDayEvent(currentSchedule.id, currentEvent.id));
+      dispatch(setEventDetailOpen(false));
+    }
   }
 
   return (
