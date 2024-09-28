@@ -9,6 +9,7 @@ import { combineReducers } from "redux";
 const persistConfig = {
   key: "root",
   storage: sessionStorage,
+  blacklist: ["searches"], // searches 리듀서를 영속성 저장에서 제외
 };
 
 const rootReducer = combineReducers({
@@ -20,10 +21,10 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 const store = configureStore({
   reducer: persistedReducer,
-  // middleware: (getDefaultMiddleware) =>
-  //   getDefaultMiddleware({
-  //     serializableCheck: false,
-  //   }),
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 });
 
 const persistor = persistStore(store);

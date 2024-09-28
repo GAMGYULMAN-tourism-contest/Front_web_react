@@ -533,7 +533,6 @@ const DaySchedule = ({
       locationContentId: "",
       locationContentTypeId: "",
     });
-    console.log(chatMessage);
     sendUpdateMessage(chatMessage);
   };
 

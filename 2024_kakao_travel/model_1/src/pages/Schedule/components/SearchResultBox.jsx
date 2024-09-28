@@ -1,7 +1,12 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useDrag } from "react-dnd";
 import styled from "styled-components";
+import { useInView } from "react-intersection-observer";
+import {
+  getSearchItems,
+  setCurrentPage,
+} from "../../../state/searches/searchesSlice";
 
 const Container = styled.div`
   display: flex;
@@ -87,12 +92,24 @@ const PlaceContact = styled.p`
   margin: 5px 0 0;
 `;
 
+const BottomOfList = styled.div`
+  width: 100%;
+  height: 20px;
+  /* position: relative; */
+  /* top: 50px; */
+  margin-top: -30px;
+  border: 1px solid #000000;
+  /* display: none; */
+  z-index: -10;
+`;
+
 // 드래그 가능한 PlaceDetails 컴포넌트
 const DraggablePlaceDetails = ({ item }) => {
   const [{ isDragging }, drag] = useDrag({
-    type: "searchItem",
-    item: { ...item, type: "searchItem" },
+    type: "searchItem", // 현재 드래그의 타입
+    item: { ...item, type: "searchItem" }, // 현재 드래그 아이템의 내부 값들
     collect: (monitor) => ({
+      // 모니터링할 상태값
       isDragging: monitor.isDragging(),
     }),
   });
@@ -107,16 +124,48 @@ const DraggablePlaceDetails = ({ item }) => {
   );
 };
 
-function SearchResultBox() {
+function SearchResultBox(props) {
+  const { searchKeyword } = props;
   const searchesState = useSelector((state) => state.searches);
+  const dispatch = useDispatch();
+  const [ref, inView] = useInView();
+
+  useEffect(() => {
+    // inView가 true 일때만 실행한다.
+    if (
+      inView &&
+      searchesState.searches &&
+      searchesState.searches.length >= 10
+    ) {
+      // console.log(inView, "무한 스크롤 요청 🎃", searchesState.currentPage);
+      // 실행할 함수
+      dispatch(
+        getSearchItems({
+          keyword: searchKeyword,
+          page: searchesState.currentPage + 1,
+          size: 10,
+          isLoadMore: true, // 무한 스크롤링이라는 걸 slice에 알려줌
+        })
+      );
+      dispatch(setCurrentPage(searchesState.currentPage + 1));
+    }
+  }, [inView]);
 
   return (
     <Container>
       <PlaceBox>
+        {searchesState.searches && searchesState.searches.length > 0 ? (
+          searchesState.searches
+            .filter((item) => item !== null && item !== undefined) // null이나 undefined인 항목 필터링
+            .map((item) => (
+              <DraggablePlaceDetails key={item.contentId} item={item} />
+            ))
+        ) : (
+          <div>no searching data</div> // 검색 결과가 없을 때 처리
+        )}
         {searchesState.searches &&
-          searchesState.searches.map((item) => (
-            <DraggablePlaceDetails key={item.contentId} item={item} />
-          ))}
+          searchesState.searches.length >= 10 &&
+          !searchesState.isLast && <BottomOfList ref={ref}>.</BottomOfList>}
       </PlaceBox>
     </Container>
   );

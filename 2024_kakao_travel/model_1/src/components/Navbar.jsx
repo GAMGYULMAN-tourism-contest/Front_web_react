@@ -269,7 +269,6 @@ function Navbar() {
   const [helpBoxOpen, setHelpBoxOpen] = useState(false);
   const [emailAddress, setEmailAddress] = useState("");
   const [invitedMessages, setInvitedMessages] = useState([]);
-  console.log(invitedMessages);
   const [validInvitationNumber, setValidInvitationNumber] = useState("");
   const { currentSchedule } = useSelector((state) => state.schedules);
 
@@ -312,19 +311,17 @@ function Navbar() {
   // };
 
   const handleInvitation = useCallback(async (invitationId, status) => {
-    console.log(invitationId, status);
     const apiRes = await authInstance.patch("/invitations", {
       invitationId: invitationId,
       status: status,
     });
-    console.log(apiRes);
   }, []);
 
   useEffect(() => {
     async function getMessages() {
       try {
         const res = await authInstance.get("/invitations");
-        console.log(res);
+
         setInvitedMessages(res.data.result.invitations);
       } catch (error) {
         console.log(error);

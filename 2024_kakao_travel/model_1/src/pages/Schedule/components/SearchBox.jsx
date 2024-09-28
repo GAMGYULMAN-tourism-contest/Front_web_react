@@ -1,7 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { CiSearch } from "react-icons/ci";
-import { getSearchItems } from "../../../state/searches/searchesSlice";
+import {
+  getSearchItems,
+  setClearSearches,
+} from "../../../state/searches/searchesSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { authInstance } from "../../../api/axiosInstance";
 import SearchResultBox from "./SearchResultBox";
@@ -81,6 +84,7 @@ export const SearchInput = styled.input`
   font-size: 18px;
   outline: none;
   /* padding: 5px 25px; */
+  padding-left: 10px;
 `;
 
 export const SearchButton = styled.button`
@@ -108,9 +112,12 @@ const SearchBox = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(searchKeyword);
     dispatch(getSearchItems({ keyword: searchKeyword, page: 1, size: 10 }));
   };
+
+  useEffect(() => {
+    return () => dispatch(setClearSearches());
+  }, []);
 
   return (
     <SearchBoxContainer>
@@ -127,7 +134,7 @@ const SearchBox = () => {
         </SearchInputWrapper>
       </SearchBoxWrapper>
       <ResultBox>
-        <SearchResultBox></SearchResultBox>
+        <SearchResultBox searchKeyword={searchKeyword}></SearchResultBox>
       </ResultBox>
     </SearchBoxContainer>
   );
