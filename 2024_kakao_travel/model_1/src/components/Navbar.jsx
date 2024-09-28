@@ -415,9 +415,7 @@ function Navbar() {
           </ShareModalBox>
         )}
         <span>
-          <GrHelpBook
-            onClick={() => setHelpBoxOpen((prev) => setHelpBoxOpen(!prev))}
-          />
+          <GrHelpBook onClick={() => setHelpBoxOpen((prev) => !prev)} />
         </span>
         {
           //TODO: 도움말 모달 열기
