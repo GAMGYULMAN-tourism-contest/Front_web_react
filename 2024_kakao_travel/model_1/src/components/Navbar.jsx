@@ -421,7 +421,7 @@ function Navbar() {
         </span>
         {
           //TODO: 도움말 모달 열기
-          helpBoxOpen && <HelpModal />
+          helpBoxOpen && <HelpModal setHelpBoxOpen={setHelpBoxOpen} />
         }
         {/* <HelpModal /> */}
       </RightBox>
