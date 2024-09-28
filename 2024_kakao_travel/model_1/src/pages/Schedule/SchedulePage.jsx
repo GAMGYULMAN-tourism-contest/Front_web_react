@@ -212,8 +212,7 @@ function SchedulePage() {
 
     // 첫 연결 시 참가한다고 서버에 알림 -> 나중에 실시간 참여자 수 구함
     setTimeout(() => sendFirstEnterMessage(stompClient), 2000);
-    // sendFirstEnterMessage(stompClient);
-    // sendFirstEnterMessage();
+
     // dispatch(setSocketClient(stompClient));
 
     return () => {

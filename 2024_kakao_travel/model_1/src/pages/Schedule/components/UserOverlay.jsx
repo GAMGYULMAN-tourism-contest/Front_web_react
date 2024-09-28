@@ -14,6 +14,7 @@ const OverlayContainer = styled.div`
   border-radius: 8px;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
   width: auto;
+  z-index: 10;
 `;
 
 const UserIcon = styled.div`
@@ -45,6 +46,7 @@ const Ellipsis = styled.div`
 `;
 
 function UserOverlay() {
+  // 전역으로 관리 필요
   const [users] = useState([
     { id: 1, name: "사용자 1" },
     { id: 2, name: "사용자 2" },

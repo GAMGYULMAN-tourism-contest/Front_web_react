@@ -2,7 +2,7 @@ import axios from "axios";
 // 리액트로 특정 사이트 크롤링
 //https://makeit80.tistory.com/entry/React-%EB%A6%AC%EC%95%A1%ED%8A%B8%EC%97%90%EC%84%9C-%ED%81%AC%EB%A1%A4%EB%A7%81%ED%95%98%EA%B8%B0
 
-const BASE_URL = "http://3.35.101.171";
+const BASE_URL = "https://3.35.101.171";
 
 // 단순 get요청으로 인증값이 필요없는 경우
 const axiosApi = (url) => {

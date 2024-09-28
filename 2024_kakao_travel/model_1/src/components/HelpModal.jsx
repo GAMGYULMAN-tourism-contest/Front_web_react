@@ -1,11 +1,11 @@
 import React from "react";
 import styled from "styled-components";
-import test from "/public/test.jpg";
-import searching1 from "/public/searching1.png";
-import schedule1 from "/public/schedule1.png";
-import schedule2 from "/public/schedule2.png";
-import map1 from "/public/map1.png";
-import map2 from "/public/map2.png";
+// import test from "/public/test.jpg";
+// import searching1 from "/public/searching1.png";
+// import schedule1 from "/public/schedule1.png";
+// import schedule2 from "/public/schedule2.png";
+// import map1 from "/public/map1.png";
+// import map2 from "/public/map2.png";
 
 // 스타일 컴포넌트 정의
 const ModalContainer = styled.div`
@@ -115,7 +115,7 @@ const HelpModal = (props) => {
       <HelpContentBox>
         <ContentTitle>1. Keyword Search</ContentTitle>
         <ContentBody>
-          <Image src={searching1} alt="Keyword search" />
+          <Image src="/searching1.png" alt="Keyword search" />
           <Description>
             Create a schedule by *dragging* the search result block!
           </Description>
@@ -125,11 +125,11 @@ const HelpModal = (props) => {
       <HelpContentBox>
         <ContentTitle>2. Schedule Page</ContentTitle>
         <ContentBody>
-          <Image src={schedule1} alt="Schedule page" />
+          <Image src="/schedule1.png" alt="Schedule page" />
           <Description>
             Drag the created schedule block to move it to the desired time zone!
           </Description>
-          <Image src={schedule2} alt="Schedule page" />
+          <Image src="/schedule2.png" alt="Schedule page" />
           <Description>Wow!</Description>
         </ContentBody>
       </HelpContentBox>
@@ -137,12 +137,12 @@ const HelpModal = (props) => {
       <HelpContentBox>
         <ContentTitle>3. Map Page</ContentTitle>
         <ContentBody>
-          <Image src={map1} alt="Map page" />
+          <Image src="/map1.png" alt="Map page" />
           <Description>
             Search results locations are displayed on the map. Click on a marker
             to see detailed information!
           </Description>
-          <Image src={map2} alt="Map page" />
+          <Image src="/map2.png" alt="Map page" />
           <Description>
             Shh, press the marker one more time and it will disappear!
           </Description>
