@@ -161,8 +161,9 @@ function SchedulePage() {
   }, []);
 
   useEffect(() => {
-    const socket = new SockJS("http://3.35.101.171:8080/socket");
+    // const socket = new SockJS("http://3.35.101.171:8080/socket");
     // const socket = new SockJS("http://3.35.101.171/socket");
+    const socket = new SockJS("https://yoursjeju-api.site/");
     const stompClient = Stomp.over(() => socket);
 
     stompClient.connect(
