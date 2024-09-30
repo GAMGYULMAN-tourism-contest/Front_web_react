@@ -159,7 +159,7 @@ const schedulesSlice = createSlice({
     builder.addCase(getSchedules.fulfilled, (state, action) => {
       console.log(action.payload);
       state.schedules = action.payload.dayEvents;
-      state.currentSchedule = action.payload;
+      state.currentSchedule = action.payload; // getSchedule 호출 시 성공하면 현재 스케줄 상태 최신화
       state.getSchedulesStatus = "fulfilled";
     });
     builder.addCase(getSchedules.rejected, (state) => {

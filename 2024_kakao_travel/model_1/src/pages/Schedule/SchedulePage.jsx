@@ -21,6 +21,7 @@ import {
 } from "../../state/schedules/schedulesSlice";
 import { authInstance } from "../../api/axiosInstance";
 import UserOverlay from "./components/UserOverlay";
+import { setMembers, setParticipants } from "../../state/socket/socketSlice";
 
 function SchedulePage() {
   const [stompClient, setStompClient] = useState(null);
@@ -40,23 +41,12 @@ function SchedulePage() {
   };
 
   // 날짜 하루 추가
-  const addDayEvents = async () => {
-    const reqData = {
-      title: currentSchedule.title,
-      description: currentSchedule.description,
-      period: currentSchedule.period + 1,
-      startDate: currentSchedule.startDate,
-    };
-    console.log(reqData);
-    const apiRes = await authInstance.patch(
-      "/schedules/" + currentSchedule.id,
-      reqData
-    );
-    console.log(apiRes);
+  const addDayEvents = () => {
+    sendCreateDayEvents();
     // dispatch(setCurrentSchedule(apiRes.schedules));
   };
 
-  // 스톰프 send 3 함수 (props 한번까지 전달해서 사용, 그 아래로는 util 함수사용)
+  // 스톰프 send 5 함수 (props 한번까지 전달해서 사용, 그 아래로는 util 함수사용)
   const sendCreateMessage = (chatMessage) => {
     console.log(eventId);
     if (stompClient) {
@@ -130,10 +120,9 @@ function SchedulePage() {
     }
   };
 
-  const sendFirstEnterMessage = (stompClient) => {
-    console.log("if 전", stompClient);
+  // dayEvents 추가
+  const sendCreateDayEvents = () => {
     if (stompClient) {
-      console.log("if도 함");
       const chatMessage = JSON.stringify({
         scheduleId: currentSchedule.id,
       });
@@ -141,7 +130,7 @@ function SchedulePage() {
       console.log(chatMessage);
 
       stompClient.send(
-        "/events/participants",
+        "/events/dayEvents/create",
         {
           Authorization: "Bearer " + token,
         },
@@ -149,6 +138,45 @@ function SchedulePage() {
       );
     }
   };
+
+  // dayEvents 삭제
+  const sendDeleteDayEvents = (dayEventsId) => {
+    if (stompClient) {
+      const chatMessage = JSON.stringify({
+        scheduleId: currentSchedule.id,
+        dayEventsId: dayEventsId,
+      });
+
+      stompClient.send(
+        "/events/dayEvents/delete",
+        {
+          Authorization: "Bearer " + token,
+        },
+        chatMessage
+      );
+    }
+  };
+
+  // 안쓰게 됨
+  // const sendFirstEnterMessage = (stompClient) => {
+  //   console.log("if 전", stompClient);
+  //   if (stompClient) {
+  //     console.log("if도 함");
+  //     const chatMessage = JSON.stringify({
+  //       scheduleId: currentSchedule.id,
+  //     });
+
+  //     console.log(chatMessage);
+
+  //     stompClient.send(
+  //       "/events/participants",
+  //       {
+  //         Authorization: "Bearer " + token,
+  //       },
+  //       chatMessage
+  //     );
+  //   }
+  // };
 
   useEffect(() => {
     console.log(currentSchedule);
@@ -203,16 +231,33 @@ function SchedulePage() {
             const json = JSON.parse(messageOutput.body);
             console.log(json);
             // json.result.participants 를 가져와서 전역상태로 관리 -> overlay 추가
+            dispatch(setParticipants(json.result.participants));
+            dispatch(setMembers(json.result.members));
+          }
+        );
+        stompClient.subscribe(
+          "/user/schedules/dayEvents/create/" + currentSchedule.id,
+          (messageOutput) => {
+            const json = JSON.parse(messageOutput.body);
+            console.log(json);
+            dispatch(getSchedules(currentSchedule.id));
+          }
+        );
+        stompClient.subscribe(
+          "/user/schedules/dayEvents/delete/" + currentSchedule.id,
+          (messageOutput) => {
+            const json = JSON.parse(messageOutput.body);
+            console.log(json);
+            dispatch(getSchedules(currentSchedule.id));
           }
         );
       }
     );
 
-    console.log("연결 성공", stompClient);
     setStompClient(stompClient);
 
-    // 첫 연결 시 참가한다고 서버에 알림 -> 나중에 실시간 참여자 수 구함
-    setTimeout(() => sendFirstEnterMessage(stompClient), 2000);
+    // 첫 연결 시 참가한다고 서버에 알림 -> 나중에 실시간 참여자 수 구함 -> 없어짐
+    // setTimeout(() => sendFirstEnterMessage(stompClient), 2000);
 
     // dispatch(setSocketClient(stompClient));
 
@@ -241,6 +286,7 @@ function SchedulePage() {
               sendCreateMessage={sendCreateMessage}
               sendUpdateMessage={sendUpdateMessage}
               sendDeleteMessage={sendDeleteMessage}
+              sendDeleteDayEvents={sendDeleteDayEvents}
               socketClient={stompClient} // props driling to dayschedule -> dayscheduleSlider -> modifyingBox
             />
           ))}

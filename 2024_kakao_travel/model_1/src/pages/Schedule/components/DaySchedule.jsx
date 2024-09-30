@@ -349,6 +349,7 @@ const DaySchedule = ({
   sendCreateMessage,
   sendUpdateMessage,
   sendDeleteMessage,
+  sendDeleteDayEvents,
   socketClient,
 }) => {
   const dispatch = useDispatch();
@@ -357,6 +358,10 @@ const DaySchedule = ({
     (state) => state.schedules.currentSchedule
   );
   const dayData = schedules.find((schedule) => schedule.day == day);
+  // 'events' 변수를 useMemo로 감싸서 메모이제이션
+  // const events = useMemo(() => {
+  //   return dayData ? dayData.events : [];
+  // }, []);
   const events = dayData ? dayData.events : [];
   // console.log(schedules, dayData, events);
 
@@ -537,19 +542,8 @@ const DaySchedule = ({
   };
 
   // 하루 일정 다 삭제
-  const deleteDayEvents = async () => {
-    const reqData = {
-      title: currentSchedule.title,
-      description: currentSchedule.description,
-      period: currentSchedule.period - 1,
-      startDate: currentSchedule.startDate,
-    };
-    console.log(reqData);
-    const apiRes = await authInstance.patch(
-      "/schedules/" + currentSchedule.id,
-      reqData
-    );
-    console.log(apiRes);
+  const deleteDayEvents = () => {
+    sendDeleteDayEvents(dayEventsId);
     // dispatch(setCurrentSchedule(apiRes.schedules));
   };
 
@@ -566,9 +560,22 @@ const DaySchedule = ({
     return groupedEvents;
   }, [events]);
 
+  // 각 이벤트를 시간별로 그룹화하는 부분에서 useMemo 제거
+  // const eventsByHour = (() => {
+  //   const groupedEvents = {};
+  //   events.forEach((event) => {
+  //     const scheduleStartHour = Math.floor(parseTimeToHour(event.startTime));
+  //     if (!groupedEvents[scheduleStartHour]) {
+  //       groupedEvents[scheduleStartHour] = [];
+  //     }
+  //     groupedEvents[scheduleStartHour].push(event);
+  //   });
+  //   return groupedEvents;
+  // })();
+
   return (
     <ScheduleContainer>
-      <button>
+      <button onClick={() => deleteDayEvents()}>
         <IoIosCloseCircleOutline />
       </button>
       {Array.from({ length: 24 }, (_, index) => (

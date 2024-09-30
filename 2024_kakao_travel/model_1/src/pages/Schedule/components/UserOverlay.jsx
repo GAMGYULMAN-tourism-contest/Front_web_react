@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { FaUser } from "react-icons/fa"; // 사람 모양 아이콘을 위해 react-icons 사용
+import { useSelector } from "react-redux";
 
 // 스타일 컴포넌트
 const OverlayContainer = styled.div`
@@ -14,7 +15,7 @@ const OverlayContainer = styled.div`
   border-radius: 8px;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
   width: auto;
-  z-index: 10;
+  z-index: 1;
 `;
 
 const UserIcon = styled.div`
@@ -30,7 +31,7 @@ const Tooltip = styled.div`
   display: none;
   position: absolute;
   bottom: 120%;
-  left: 50%;
+  left: -120%;
   transform: translateX(-50%);
   background-color: black;
   color: white;
@@ -47,24 +48,36 @@ const Ellipsis = styled.div`
 
 function UserOverlay() {
   // 전역으로 관리 필요
-  const [users] = useState([
-    { id: 1, name: "사용자 1" },
-    { id: 2, name: "사용자 2" },
-    { id: 3, name: "사용자 3" },
-    { id: 4, name: "사용자 4" },
-    { id: 5, name: "사용자 5" },
-  ]);
+  // const [users] = useState([
+  //   { id: 1, name: "사용자 1" },
+  //   { id: 2, name: "사용자 2" },
+  //   { id: 3, name: "사용자 3" },
+  //   { id: 4, name: "사용자 4" },
+  //   { id: 5, name: "사용자 5" },
+  // ]);
+
+  // const { participants, members } = useSelector((state) => state.socket);
+  const { participants, members } = useSelector(
+    (state) => state.socketSlice
+  ) || {
+    participants: 0,
+    members: [],
+  };
 
   return (
-    <OverlayContainer>
-      {users.slice(0, 4).map((user) => (
-        <UserIcon key={user.id}>
-          <FaUser size={20} />
-          <Tooltip className="tooltip">{user.name}</Tooltip>
-        </UserIcon>
-      ))}
-      {users.length > 4 && <Ellipsis>...</Ellipsis>}
-    </OverlayContainer>
+    participants && (
+      <OverlayContainer>
+        {console.log(participants, members)}
+        {members.slice(0, 4).map((user, idx) => (
+          <UserIcon key={idx}>
+            <FaUser size={20} />
+            {console.log(user)}
+            <Tooltip className="tooltip">{user}</Tooltip>
+          </UserIcon>
+        ))}
+        {members.length > 4 && <Ellipsis>...</Ellipsis>}
+      </OverlayContainer>
+    )
   );
 }
 

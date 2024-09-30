@@ -345,7 +345,7 @@ function Navbar() {
           </span>
         )}
 
-        {window.location.href.includes("/schedule/") && (
+        {localStorage.getItem("accessToken") && (
           <span>
             <GoMail onClick={() => handleMailBoxClick()} />
           </span>
