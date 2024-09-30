@@ -21,10 +21,10 @@ export const SendUpdateMessage = (chatMessage, socketClient) => {
   // console.log(eventId);
   // const { socketClient, chatMessage } = props;
   // const { socketClient } = useSelector((state) => state.schedules);
-  // console.log(props);
-  console.log(chatMessage, socketClient.socketClient);
+
+  console.log(chatMessage, socketClient);
   if (socketClient) {
-    socketClient.socketClient.send(
+    socketClient.send(
       "/events/update",
       {
         Authorization: "Bearer " + token,

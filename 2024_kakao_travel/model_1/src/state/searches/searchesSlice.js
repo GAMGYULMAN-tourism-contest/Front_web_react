@@ -60,9 +60,6 @@ const searchesSlice = createSlice({
 
     // 프로미스 성공 (fulfilled) 시점
     builder.addCase(getSearchItems.fulfilled, (state, action) => {
-      // console.log(action.payload);
-      // state.searches = action.payload.item;
-
       // 기존 검색 결과에 새로운 페이지의 아이템을 추가합니다.
       // action.meta.arg.isLoadMore가 true이면 무한 스크롤로 인한 추가 로딩
       if (action.meta.arg.isLoadMore) {

@@ -107,7 +107,7 @@ const BottomOfList = styled.div`
 const DraggablePlaceDetails = ({ item }) => {
   const [{ isDragging }, drag] = useDrag({
     type: "searchItem", // 현재 드래그의 타입
-    item: { ...item, type: "searchItem" }, // 현재 드래그 아이템의 내부 값들
+    item: { ...item, type: "searchItem" }, // 현재 드래그 아이템의 내부 값들, location 객체 참조하자!
     collect: (monitor) => ({
       // 모니터링할 상태값
       isDragging: monitor.isDragging(),
@@ -154,7 +154,7 @@ function SearchResultBox(props) {
   return (
     <Container>
       <PlaceBox>
-        {searchesState.searches && searchesState.searches.length > 0 ? (
+        {searchesState.searches ? (
           searchesState.searches
             .filter((item) => item !== null && item !== undefined) // null이나 undefined인 항목 필터링
             .map((item) => (

@@ -116,8 +116,8 @@ import { authInstance } from "../../../api/axiosInstance";
 
 // Styled Components 정의
 const ScheduleContainer = styled.div`
-  flex: 0 0 40%; /* 요소가 줄어들지 않고 40% 너비를 유지하도록 설정 */
-  width: 40vw;
+  flex: 0 0 35%; /* 요소가 줄어들지 않고 40% 너비를 유지하도록 설정 */
+  width: 35vw;
   display: grid;
   grid-template-columns: 1fr;
   position: relative;
@@ -302,7 +302,9 @@ const HourBlockComponent = ({ hour, day, children, onDrop, socketClient }) => {
     accept: ["schedule", "searchItem"],
     drop: (item) => {
       const newStartTime = `${hour}:00`;
-      onDrop(item.id, item.title, newStartTime, day, item.type);
+      // onDrop(item.id, item.title, newStartTime, day, item.type);
+      console.log(item);
+      onDrop(item.id, item.title, newStartTime, day, item.type, item);
     },
     collect: (monitor) => ({
       isOver: monitor.isOver(),
@@ -358,19 +360,14 @@ const DaySchedule = ({
     (state) => state.schedules.currentSchedule
   );
   const dayData = schedules.find((schedule) => schedule.day == day);
-  // 'events' 변수를 useMemo로 감싸서 메모이제이션
-  // const events = useMemo(() => {
-  //   return dayData ? dayData.events : [];
-  // }, []);
   const events = dayData ? dayData.events : [];
-  // console.log(schedules, dayData, events);
+  // console.log(socketClient);
 
-  const handleDrop = (id, title, newStartTime, newDay, type) => {
+  const handleDrop = (id, title, newStartTime, newDay, type, item) => {
     // 이전 날짜의 기존 이벤트 추적
     let prevDayEvent;
     schedules.map((dayEvent) => {
       for (let event in dayEvent.events) {
-        // console.log(dayEvent.events[event]);
         if (dayEvent.events[event].id === id) {
           prevDayEvent = dayEvent.events[event];
         }
@@ -378,7 +375,6 @@ const DaySchedule = ({
     });
     dispatch(setCurrentEvent(prevDayEvent));
     const existingEvent = events.find((event) => event.id === id);
-    // console.log(id, title, newStartTime, newDay, type, existingEvent, events);
     if (existingEvent) {
       // 기존 이벤트의 지속 시간을 계산
       const duration =
@@ -388,16 +384,25 @@ const DaySchedule = ({
       const newEndTime = calculateNewEndTime(newStartTime, duration * 60);
       // 새로운 시간대에 다른 이벤트가 있는지 확인
       const isOverlap = events.some((event) => {
+        if (event.id === id) {
+          // 같은 이벤트는 겹침 검사에서 제외
+          return false;
+        }
+
         const eventStart = parseTimeToHour(event.startTime);
         const eventEnd = parseTimeToHour(event.endTime);
         const newStart = parseTimeToHour(newStartTime);
         const newEnd = parseTimeToHour(newEndTime);
 
-        // 새로운 시간대가 기존 이벤트의 시간대와 겹치는지 검사
+        // 이벤트 시간이 유효하지 않은 경우 제외
+        if (isNaN(eventStart) || isNaN(eventEnd)) {
+          return false;
+        }
+
         return (
-          (newStart >= eventStart && newStart < eventEnd) || // 새로운 이벤트의 시작 시간이 기존 이벤트 시간 내에 있는지
-          (newEnd > eventStart && newEnd <= eventEnd) || // 새로운 이벤트의 종료 시간이 기존 이벤트 시간 내에 있는지
-          (newStart <= eventStart && newEnd >= eventEnd) // 새로운 이벤트가 기존 이벤트를 포함하는지
+          (newStart >= eventStart && newStart < eventEnd) ||
+          (newEnd > eventStart && newEnd <= eventEnd) ||
+          (newStart <= eventStart && newEnd >= eventEnd)
         );
       });
 
@@ -443,8 +448,8 @@ const DaySchedule = ({
           description: title, // 설명 없음, 제목 그대로
           startTime: newStartTime,
           endTime: newEndTime,
-          locationContentId: "",
-          locationContentTypeId: "",
+          locationContentId: item.contentId,
+          locationContentTypeId: item.contentTypeId,
         });
         sendCreateMessage(chatMessageCreate);
       }
@@ -478,6 +483,9 @@ const DaySchedule = ({
         return;
       }
 
+      if (type === "searchItem") {
+        return;
+      }
       const newEvent = {
         id: prevDayEvent.id,
         startTime: newStartTime,
@@ -526,7 +534,6 @@ const DaySchedule = ({
     // 리사이즈가 끝난 후 상태 업데이트
     dispatch(updateDayEvent({ day: day, updatedEvent, originDay: day }));
     // 소켓 메시지 뿌리기
-    console.log(updatedEvent);
     const chatMessage = JSON.stringify({
       scheduleId: currentSchedule.id,
       eventId: updatedEvent.id,

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import styled from "styled-components";
-import logo from "/logo.png";
+import logo from "/logo.webp";
 import { useNavigate } from "react-router";
 import { FiMail } from "react-icons/fi";
 import { GoMail } from "react-icons/go";

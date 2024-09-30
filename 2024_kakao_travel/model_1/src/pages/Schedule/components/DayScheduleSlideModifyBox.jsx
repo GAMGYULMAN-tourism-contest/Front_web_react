@@ -159,7 +159,6 @@ function ModifyingMainBox(props) {
     // 현재 이벤트의 날짜 아이디 가져오기
     let curentEventDay;
     currentSchedule.dayEvents.map((day) => {
-      console.log(day);
       if (day.events.find((event) => event.id === currentEvent.id)) {
         curentEventDay = day.id;
         return;

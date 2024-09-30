@@ -115,7 +115,7 @@ const HelpModal = (props) => {
       <HelpContentBox>
         <ContentTitle>1. Keyword Search</ContentTitle>
         <ContentBody>
-          <Image src="/searching1.png" alt="Keyword search" />
+          <Image src="/searching1.webp" alt="Keyword search" />
           <Description>
             Create a schedule by *dragging* the search result block!
           </Description>
@@ -125,11 +125,11 @@ const HelpModal = (props) => {
       <HelpContentBox>
         <ContentTitle>2. Schedule Page</ContentTitle>
         <ContentBody>
-          <Image src="/schedule1.png" alt="Schedule page" />
+          <Image src="/schedule1.webp" alt="Schedule page" />
           <Description>
             Drag the created schedule block to move it to the desired time zone!
           </Description>
-          <Image src="/schedule2.png" alt="Schedule page" />
+          <Image src="/schedule2.webp" alt="Schedule page" />
           <Description>Wow!</Description>
         </ContentBody>
       </HelpContentBox>
@@ -137,12 +137,12 @@ const HelpModal = (props) => {
       <HelpContentBox>
         <ContentTitle>3. Map Page</ContentTitle>
         <ContentBody>
-          <Image src="/map1.png" alt="Map page" />
+          <Image src="/map1.webp" alt="Map page" />
           <Description>
             Search results locations are displayed on the map. Click on a marker
             to see detailed information!
           </Description>
-          <Image src="/map2.png" alt="Map page" />
+          <Image src="/map2.webp" alt="Map page" />
           <Description>
             Shh, press the marker one more time and it will disappear!
           </Description>

@@ -65,14 +65,14 @@ function UserOverlay() {
   };
 
   return (
-    participants && (
+    participants !== 0 && (
       <OverlayContainer>
-        {console.log(participants, members)}
         {members.slice(0, 4).map((user, idx) => (
           <UserIcon key={idx}>
             <FaUser size={20} />
             {console.log(user)}
-            <Tooltip className="tooltip">{user}</Tooltip>
+            {/* <img src={user.image} /> */}
+            <Tooltip className="tooltip">{user.email}</Tooltip>
           </UserIcon>
         ))}
         {members.length > 4 && <Ellipsis>...</Ellipsis>}

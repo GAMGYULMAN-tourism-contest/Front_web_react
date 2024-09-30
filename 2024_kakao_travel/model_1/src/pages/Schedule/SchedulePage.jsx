@@ -24,10 +24,11 @@ import UserOverlay from "./components/UserOverlay";
 import { setMembers, setParticipants } from "../../state/socket/socketSlice";
 
 function SchedulePage() {
-  const [stompClient, setStompClient] = useState(null);
+  const [socketClient, setSocketClient] = useState(null);
   const [eventId, setEventId] = useState("");
   const [token, setToken] = useState(localStorage.getItem("accessToken"));
   const [ratio, setRatio] = useState(1); // 화면 확대 축소 비율
+  const [reconnectAttempts, setReconnectAttempts] = useState(0); // 재연결 시도 횟수
 
   const navigate = useNavigate();
   const data = useSelector((state) => state.schedules.schedules);
@@ -35,6 +36,7 @@ function SchedulePage() {
     (state) => state.schedules.currentSchedule
   );
   const dispatch = useDispatch();
+  // console.log("소켓상태", data.socketClient);
 
   const wheelHandler = (e) => {
     setRatio((ratio) => (ratio >= 0.2 ? ratio + 0.001 * e.deltaY : 0.2));
@@ -49,7 +51,7 @@ function SchedulePage() {
   // 스톰프 send 5 함수 (props 한번까지 전달해서 사용, 그 아래로는 util 함수사용)
   const sendCreateMessage = (chatMessage) => {
     console.log(eventId);
-    if (stompClient) {
+    if (socketClient) {
       // const chatMessage = JSON.stringify({
       //   scheduleId: scheduleId,
       //   dayEventsId: dayEventsId,
@@ -63,7 +65,7 @@ function SchedulePage() {
 
       console.log(chatMessage);
 
-      stompClient.send(
+      socketClient.send(
         "/events/create",
         {
           Authorization: "Bearer " + token,
@@ -75,7 +77,7 @@ function SchedulePage() {
 
   const sendUpdateMessage = (chatMessage) => {
     // console.log(eventId);
-    if (stompClient) {
+    if (socketClient) {
       // const chatMessage = JSON.stringify({
       //   scheduleId: scheduleId,
       //   eventId: eventId,
@@ -90,7 +92,7 @@ function SchedulePage() {
 
       console.log(chatMessage);
 
-      stompClient.send(
+      socketClient.send(
         "/events/update",
         {
           Authorization: "Bearer " + token,
@@ -102,7 +104,7 @@ function SchedulePage() {
 
   const sendDeleteMessage = (chatMessage) => {
     console.log(eventId);
-    if (stompClient) {
+    if (socketClient) {
       // const chatMessage = JSON.stringify({
       //   scheduleId: scheduleId,
       //   eventId: eventId,
@@ -110,7 +112,7 @@ function SchedulePage() {
 
       console.log(chatMessage);
 
-      stompClient.send(
+      socketClient.send(
         "/events/delete",
         {
           Authorization: "Bearer " + token,
@@ -122,14 +124,14 @@ function SchedulePage() {
 
   // dayEvents 추가
   const sendCreateDayEvents = () => {
-    if (stompClient) {
+    if (socketClient) {
       const chatMessage = JSON.stringify({
         scheduleId: currentSchedule.id,
       });
 
       console.log(chatMessage);
 
-      stompClient.send(
+      socketClient.send(
         "/events/dayEvents/create",
         {
           Authorization: "Bearer " + token,
@@ -141,13 +143,13 @@ function SchedulePage() {
 
   // dayEvents 삭제
   const sendDeleteDayEvents = (dayEventsId) => {
-    if (stompClient) {
+    if (socketClient) {
       const chatMessage = JSON.stringify({
         scheduleId: currentSchedule.id,
         dayEventsId: dayEventsId,
       });
 
-      stompClient.send(
+      socketClient.send(
         "/events/dayEvents/delete",
         {
           Authorization: "Bearer " + token,
@@ -157,115 +159,94 @@ function SchedulePage() {
     }
   };
 
-  // 안쓰게 됨
-  // const sendFirstEnterMessage = (stompClient) => {
-  //   console.log("if 전", stompClient);
-  //   if (stompClient) {
-  //     console.log("if도 함");
-  //     const chatMessage = JSON.stringify({
-  //       scheduleId: currentSchedule.id,
-  //     });
-
-  //     console.log(chatMessage);
-
-  //     stompClient.send(
-  //       "/events/participants",
-  //       {
-  //         Authorization: "Bearer " + token,
-  //       },
-  //       chatMessage
-  //     );
-  //   }
-  // };
-
-  useEffect(() => {
-    console.log(currentSchedule);
-    dispatch(getSearchItems({ page: 1, size: 10 }));
-    // dispatch(setFirstSchedulePageVisit(true));
-
-    // return () => {
-    //   dispatch(setFirstSchedulePageVisit(false));
-    // };
-  }, []);
-
   useEffect(() => {
     // const socket = new SockJS("http://3.35.101.171:8080/socket");
     // const socket = new SockJS("http://3.35.101.171/socket");
     const socket = new SockJS("https://yoursjeju-api.site/socket");
     const stompClient = Stomp.over(() => socket);
 
-    stompClient.connect(
-      {
-        Authorization: "Bearer " + token,
-      },
-      (frame) => {
-        console.log("Connected: " + frame);
+    const connectStompClient = () => {
+      stompClient.connect(
+        {
+          Authorization: "Bearer " + token,
+        },
+        (frame) => {
+          console.log("Connected: " + frame);
+          setReconnectAttempts(0); // 연결 성공 시 재연결 시도 횟수 초기화
 
-        stompClient.subscribe(
-          "/user/schedules/create/" + currentSchedule.id,
-          (messageOutput) => {
-            const json = JSON.parse(messageOutput.body);
-            console.log(json);
-            dispatch(getSchedules(currentSchedule.id));
-          }
-        );
-        stompClient.subscribe(
-          "/user/schedules/delete/" + currentSchedule.id,
-          (messageOutput) => {
-            const json = JSON.parse(messageOutput.body);
-            console.log(json);
-            dispatch(getSchedules(currentSchedule.id));
-          }
-        );
-        stompClient.subscribe(
-          "/user/schedules/update/" + currentSchedule.id,
-          (messageOutput) => {
-            const json = JSON.parse(messageOutput.body);
-            console.log(json);
-            dispatch(getSchedules(currentSchedule.id));
-          }
-        );
-        stompClient.subscribe(
-          "/user/schedules/participants/" + currentSchedule.id,
-          (messageOutput) => {
-            const json = JSON.parse(messageOutput.body);
-            console.log(json);
-            // json.result.participants 를 가져와서 전역상태로 관리 -> overlay 추가
-            dispatch(setParticipants(json.result.participants));
-            dispatch(setMembers(json.result.members));
-          }
-        );
-        stompClient.subscribe(
-          "/user/schedules/dayEvents/create/" + currentSchedule.id,
-          (messageOutput) => {
-            const json = JSON.parse(messageOutput.body);
-            console.log(json);
-            dispatch(getSchedules(currentSchedule.id));
-          }
-        );
-        stompClient.subscribe(
-          "/user/schedules/dayEvents/delete/" + currentSchedule.id,
-          (messageOutput) => {
-            const json = JSON.parse(messageOutput.body);
-            console.log(json);
-            dispatch(getSchedules(currentSchedule.id));
-          }
-        );
-      }
-    );
+          stompClient.subscribe(
+            "/user/schedules/create/" + currentSchedule.id,
+            (messageOutput) => {
+              const json = JSON.parse(messageOutput.body);
+              dispatch(getSchedules(currentSchedule.id));
+            }
+          );
+          stompClient.subscribe(
+            "/user/schedules/delete/" + currentSchedule.id,
+            (messageOutput) => {
+              const json = JSON.parse(messageOutput.body);
+              dispatch(getSchedules(currentSchedule.id));
+            }
+          );
+          stompClient.subscribe(
+            "/user/schedules/update/" + currentSchedule.id,
+            (messageOutput) => {
+              const json = JSON.parse(messageOutput.body);
+              console.log(json);
+              dispatch(getSchedules(currentSchedule.id));
+            }
+          );
+          stompClient.subscribe(
+            "/user/schedules/participants/" + currentSchedule.id,
+            (messageOutput) => {
+              const json = JSON.parse(messageOutput.body);
+              dispatch(setParticipants(json.result.participants));
+              dispatch(setMembers(json.result.members));
+            }
+          );
+          stompClient.subscribe(
+            "/user/schedules/dayEvents/create/" + currentSchedule.id,
+            (messageOutput) => {
+              const json = JSON.parse(messageOutput.body);
+              dispatch(getSchedules(currentSchedule.id));
+            }
+          );
+          stompClient.subscribe(
+            "/user/schedules/dayEvents/delete/" + currentSchedule.id,
+            (messageOutput) => {
+              const json = JSON.parse(messageOutput.body);
+              dispatch(getSchedules(currentSchedule.id));
+            }
+          );
+          setSocketClient(stompClient);
+        },
+        (error) => {
+          console.error("STOMP connection error", error);
 
-    setStompClient(stompClient);
+          // 재연결 시도 로직
+          const reconnectInterval = Math.min(
+            5000 * (reconnectAttempts + 1),
+            30000
+          ); // 5초, 10초, 15초 간격으로 재연결 시도
+          setReconnectAttempts((prev) => prev + 1);
 
-    // 첫 연결 시 참가한다고 서버에 알림 -> 나중에 실시간 참여자 수 구함 -> 없어짐
-    // setTimeout(() => sendFirstEnterMessage(stompClient), 2000);
+          console.log(`Reconnecting in ${reconnectInterval / 1000} seconds...`);
 
-    // dispatch(setSocketClient(stompClient));
-
-    return () => {
-      if (stompClient) {
-        stompClient.disconnect();
-      }
+          setTimeout(() => {
+            connectStompClient(); // 재연결 시도
+          }, reconnectInterval);
+        }
+      );
     };
+    connectStompClient();
+
+    // 연결 지연 확인 후 종료
+    const timeout = setTimeout(() => {
+      if (stompClient && !stompClient.connected) {
+        console.error("connect time over");
+        stompClient.disconnect(); // 연결이 되지 않으면 강제 종료
+      }
+    }, 5000); // 5초 타임아웃
   }, []);
 
   return (
@@ -287,7 +268,7 @@ function SchedulePage() {
               sendUpdateMessage={sendUpdateMessage}
               sendDeleteMessage={sendDeleteMessage}
               sendDeleteDayEvents={sendDeleteDayEvents}
-              socketClient={stompClient} // props driling to dayschedule -> dayscheduleSlider -> modifyingBox
+              socketClient={socketClient} // props driling to dayschedule -> dayscheduleSlider -> modifyingBox
             />
           ))}
           <S.FloatingButton onClick={() => navigate("/map/1")}>

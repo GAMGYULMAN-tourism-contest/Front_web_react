@@ -14,16 +14,29 @@ function MainPage() {
     <S.Container>
       <S.TopBox>
         <S.TopTitle>YOUR'S JEJU</S.TopTitle>
-        <S.TopLoginButton
-          onClick={() => {
-            console.log("routing");
-            const url = "http://3.35.101.171/oauth2/authorization/google";
-            window.location.href = url;
-          }}
-        >
-          <S.TopLoginButtonImg src={Google} alt="Google" />
-          <span>Continue with Google</span>
-        </S.TopLoginButton>
+        {!localStorage.getItem("accessToken") && (
+          <S.TopLoginButton
+            onClick={() => {
+              console.log("routing");
+              const url = "http://3.35.101.171/oauth2/authorization/google";
+              window.location.href = url;
+            }}
+          >
+            <S.TopLoginButtonImg src={Google} alt="Google" />
+            <span>Continue with Google</span>
+          </S.TopLoginButton>
+        )}
+        {localStorage.getItem("accessToken") && (
+          <S.TopLoginButton
+            onClick={() => {
+              localStorage.removeItem("accessToken");
+              navigate("/");
+            }}
+          >
+            {/* <S.TopLoginButtonImg src={Google} alt="Google" />/ */}
+            <h2>logout</h2>
+          </S.TopLoginButton>
+        )}
         <S.MainFeatBox>
           <S.MainFeatItem
             onClick={() => {

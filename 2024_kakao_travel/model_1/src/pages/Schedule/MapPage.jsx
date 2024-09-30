@@ -11,19 +11,6 @@ function Kakao() {
   const { kakao } = window;
   const { searches } = useSelector((state) => state.searches);
   console.log(searches);
-  // // 인포윈도우를 표시하는 클로저를 만드는 함수입니다
-  // function makeOverListener(map, marker, infowindow) {
-  //   return function () {
-  //     infowindow.open(map, marker);
-  //   };
-  // }
-
-  // // 인포윈도우를 닫는 클로저를 만드는 함수입니다
-  // function makeOutListener(infowindow) {
-  //   return function () {
-  //     infowindow.close();
-  //   };
-  // }
 
   useEffect(() => {
     var container = document.getElementById("map"); //지도를 담을 영역의 DOM 레퍼런스
@@ -47,7 +34,6 @@ function Kakao() {
     // 검색 결과 마커 이미지의 이미지 주소입니다
     var imageSrc =
       "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png";
-    console.log(searches);
     if (searches) {
       searches.forEach((searchItem, index) => {
         // var 키워드 (함수 스코프)로 인한 forEach사용

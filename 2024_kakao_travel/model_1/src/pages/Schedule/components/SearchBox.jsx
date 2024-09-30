@@ -105,6 +105,9 @@ export const SearchIcon = styled(CiSearch)`
 const SearchBox = () => {
   const [searchKeyword, setSearchKeyword] = useState("");
   const dispatch = useDispatch();
+  const currentSchedule = useSelector(
+    (state) => state.schedules.currentSchedule
+  );
 
   const handleSearchKeywordChange = (e) => {
     setSearchKeyword(e.target.value);
@@ -115,8 +118,13 @@ const SearchBox = () => {
     dispatch(getSearchItems({ keyword: searchKeyword, page: 1, size: 10 }));
   };
 
+  // useEffect(() => {
+  //   return () => dispatch(setClearSearches());
+  // }, []);
+
   useEffect(() => {
-    return () => dispatch(setClearSearches());
+    console.log(currentSchedule);
+    dispatch(getSearchItems({ page: 1, size: 10, isLoadMore: false }));
   }, []);
 
   return (

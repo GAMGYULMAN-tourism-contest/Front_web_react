@@ -8,7 +8,6 @@ export const getSchedules = createAsyncThunk(
   async function getMySchedules(scheduleId) {
     const res = await authInstance.get("/schedules/" + scheduleId);
     // return res.data.result.dayEvents;
-    console.log(res.data.result);
     return res.data.result;
   }
 );
@@ -66,11 +65,11 @@ const schedulesSlice = createSlice({
           );
         });
 
-        if (!hasOverlap) {
-          state.schedules[dayIndex].events.push(newEvent);
-        } else {
-          alert("Event times overlap with an existing event.");
-        }
+        // if (!hasOverlap) {
+        //   state.schedules[dayIndex].events.push(newEvent);
+        // } else {
+        //   alert("Event times overlap with an existing event.");
+        // }
       }
     },
     updateDayEvent: (state, action) => {
@@ -145,9 +144,9 @@ const schedulesSlice = createSlice({
     setMakeModalOpen: (state, action) => {
       state.makeModalOpen = action.payload;
     },
-    setSocketClient: (state, action) => {
-      state.socketClient = action.payload;
-    },
+    // setSocketClient: (state, action) => {
+    //   state.socketClient = action.payload;
+    // },
     setFirstSchedulePageVisit: (state, action) => {
       state.firstSchedulePageVisit = action.payload;
     },
@@ -180,7 +179,7 @@ export const {
   setCurrentEvent,
   setSchedules,
   setMakeModalOpen,
-  setSocketClient,
+  // setSocketClient,
   setFirstSchedulePageVisit,
 } = schedulesSlice.actions;
 export default schedulesSlice.reducer;

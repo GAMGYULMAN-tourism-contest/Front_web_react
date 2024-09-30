@@ -15,6 +15,7 @@ import {
 import useSendUpdateMessage from "../../../Hooks/useUpdateMessage";
 import ModifyingMainBox from "./DayScheduleSlideModifyBox";
 import ConfirmModal from "./../../../components/ConfirmModal";
+import { authInstance } from "../../../api/axiosInstance";
 
 // 애니메이션 정의: 오른쪽에서 나오는 애니메이션
 const slideInFromRight = keyframes`
@@ -39,7 +40,8 @@ const Container = styled.div`
   height: 100vh;
   background-color: #f9ffd7;
   color: black;
-  display: flex;
+  display: ${(props) => (props.$isVisible ? "flex" : "none")};
+  transition: display 0.5s allow-discrete;
   /* flex-direction: column; */
   align-items: center;
   justify-content: center;
@@ -71,13 +73,14 @@ const MinButton = styled.button`
 
 const MainBox = styled.div`
   width: 100%;
-  height: 100%;
+  height: 80%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   margin-top: -10vh;
   gap: 25px;
+  overflow-y: auto;
 `;
 
 const ButtonBox = styled.div`
@@ -127,6 +130,10 @@ const TitleBox = styled.div`
     border: 1px solid black;
     font-size: 20px;
   }
+
+  h1 {
+    font-size: 24px;
+  }
 `;
 const DurationBox = styled.div`
   width: 70%;
@@ -149,7 +156,7 @@ const DescriptionBox = styled.div`
   /* background-color: #ffcc78; */
 `;
 
-function DayScheduleSlide(socketClient) {
+function DayScheduleSlide({ socketClient, address }) {
   const {
     eventDetailOpen,
     currentEvent,
@@ -157,10 +164,11 @@ function DayScheduleSlide(socketClient) {
     currentSchedule,
   } = useSelector((state) => state.schedules);
   const dispatch = useDispatch();
-  // console.log(socketClient);
-  // const socketClient = socketClient;
   const [isModifying, setIsModifying] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [thisEvent, setThisEvent] = useState({});
+  console.log(socketClient);
 
   function modifyClickHandler() {
     setIsModifying(true);
@@ -176,11 +184,29 @@ function DayScheduleSlide(socketClient) {
     if (!confirm("Please click Confirm or Cancel.")) {
       return;
     } else {
-      SendDeleteMessage(JSON.stringify(chatMessage), socketClient.socketClient);
+      SendDeleteMessage(JSON.stringify(chatMessage), socketClient);
       // dispatch(deleteDayEvent(currentSchedule.id, currentEvent.id));
       dispatch(setEventDetailOpen(false));
     }
   }
+
+  useEffect(() => {
+    async function getThisEvent(id) {
+      setIsLoading(true);
+      try {
+        const resApi = await authInstance.get("/events/" + id);
+        console.log(resApi);
+        setThisEvent(resApi.data.result);
+      } catch (error) {
+        console.error(error);
+      }
+      setIsLoading(false);
+    }
+
+    if (eventDetailOpen && currentEvent) {
+      getThisEvent(currentEvent.id);
+    }
+  }, [eventDetailOpen, currentEvent]); // eventDetailOpen이 true로 변경될 때 useEffect 실행
 
   return (
     <Container
@@ -218,8 +244,15 @@ function DayScheduleSlide(socketClient) {
                 {currentEvent.startTime} ~ {currentEvent.endTime}
               </span>
             </DurationBox>
-            <DescriptionBox>
+            <DescriptionBox key={1}>
               <span>{currentEvent.description}</span>
+            </DescriptionBox>
+            <DescriptionBox>
+              {isLoading ? (
+                <span>loading...</span>
+              ) : (
+                thisEvent.location && <span>{thisEvent.location?.address}</span>
+              )}
             </DescriptionBox>
           </MainBox>
         ))}
