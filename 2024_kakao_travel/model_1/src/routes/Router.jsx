@@ -1,6 +1,7 @@
 import AppLayout from "../layout/AppLayout";
 import SchedulePage from "../pages/Schedule/SchedulePage";
 import {
+  DictionaryPage,
   LoginPage,
   MainPage,
   MyPage,
@@ -32,6 +33,10 @@ const Router = [
       {
         path: "/map/:scheduleId",
         element: <MapPage />,
+      },
+      {
+        path: "/dictionary",
+        element: <DictionaryPage />,
       },
     ],
     errorElement: <NotFoundPage />,
