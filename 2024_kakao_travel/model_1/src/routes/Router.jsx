@@ -7,6 +7,7 @@ import {
   MyPage,
   MapPage,
   NotFoundPage,
+  DictionaryDetailPage,
 } from "../pages/index";
 
 const Router = [
@@ -37,6 +38,10 @@ const Router = [
       {
         path: "/dictionary",
         element: <DictionaryPage />,
+      },
+      {
+        path: "/dictionary/:type",
+        element: <DictionaryDetailPage />,
       },
     ],
     errorElement: <NotFoundPage />,
