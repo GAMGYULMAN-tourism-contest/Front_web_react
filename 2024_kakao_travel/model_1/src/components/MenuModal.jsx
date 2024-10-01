@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
 
@@ -51,8 +52,16 @@ const CloseButton = styled.button`
   cursor: pointer;
 `;
 
+const UserEmail = styled.div`
+  position: fixed;
+  top: 1vh;
+`;
+
 const MenuModal = ({ menuModalIsOpen, toggleMenu }) => {
   const navigate = useNavigate();
+  const { user } = useSelector((state) => state.socket || {}); // user가 없는 경우에도 안전하게 빈 객체를 반환
+  console.log(user);
+
   return (
     <>
       {/* <MenuButton onClick={toggleMenu}>Menu</MenuButton>/ */}
@@ -84,6 +93,7 @@ const MenuModal = ({ menuModalIsOpen, toggleMenu }) => {
         >
           Log Out
         </MenuItem>
+        {user && <UserEmail>{user.email}</UserEmail>}
       </Modal>
     </>
   );

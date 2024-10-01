@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
 import styled from "styled-components";
 
@@ -102,7 +102,7 @@ const MeaningText = styled.div`
 const AudioContainer = styled.div`
   display: flex;
   /* align-items: center; */
-  justify-content: flex-end;
+  justify-content: flex-ends;
 
   button {
     position: relative;
@@ -111,6 +111,8 @@ const AudioContainer = styled.div`
 `;
 
 const AudioButton = styled.button`
+  width: 80px;
+  height: 40px;
   background-color: #007bff;
   color: white;
   border: none;
@@ -147,28 +149,47 @@ const dataSet = [
         meaning: "Hello",
         mp3: "/audio/pronunciation_ko_안녕하세요.mp3",
       },
-      { text: "실례합니다", pronounce: "sillyehamnida", meaning: "Excuse me" },
-      { text: "감사합니다", pronounce: "gamsahamnida", meaning: "Thank you" },
+      {
+        text: "실례합니다",
+        pronounce: "sillyehamnida",
+        meaning: "Excuse me",
+        mp3: "/audio/pronunciation_ko_실례합니다.mp3",
+      },
+      {
+        text: "감사합니다",
+        pronounce: "gamsahamnida",
+        meaning: "Thank you",
+        mp3: "/audio/pronunciation_ko_감사합니다.mp3",
+      },
       {
         text: "반갑습니다",
         pronounce: "bangapseumnida",
         meaning: "Nice to meet you",
+        mp3: "/audio/pronunciation_ko_반갑습니다.mp3",
       },
       {
         text: "안녕히 가세요",
         pronounce: "annyeonghi gaseyo",
         meaning: "Goodbye",
+        mp3: "/audio/pronunciation_ko_안녕히_가세요.mp3",
       },
       {
         text: "또 뵙겠습니다",
         pronounce: "tto boepgetseumnida",
         meaning: "See you again",
+        mp3: "/audio/pronunciation_ko_또_뵙겠습니다.mp3",
       },
-      { text: "죄송합니다", pronounce: "joesonghamnida", meaning: "I'm sorry" },
+      {
+        text: "죄송합니다",
+        pronounce: "joesonghamnida",
+        meaning: "I'm sorry",
+        mp3: "/audio/pronunciation_ko_죄송합니다.mp3",
+      },
       {
         text: "아주 감사드립니다",
         pronounce: "aju gamsadeurimnida",
         meaning: "Thank you very much",
+        mp3: "/audio/pronunciation_ko_아주_감사드립니다.mp3",
       },
     ],
   },
@@ -245,71 +266,85 @@ const dataSet = [
         text: "마지막 주문 시간이 언제인가요?",
         pronounce: "majimak jumun sigani eonjengayo?",
         meaning: "What time is the last order?",
+        mp3: "/audio/meal/pronunciation_ko_마지막_주문_시간이_언제인가요_.mp3",
       },
       {
         text: "예약할 수 있을까요?",
         pronounce: "yeyakhal su isseulkkayo?",
         meaning: "Can I make a reservation?",
+        mp3: "/audio/meal/pronunciation_ko_예약할_수_있을까요_.mp3",
       },
       {
         text: "메뉴 좀 주시겠어요?",
         pronounce: "menyu jom jusigetseoyo?",
         meaning: "Can I have the menu?",
+        mp3: "/audio/meal/pronunciation_ko_메뉴_좀_주시겠어요_.mp3",
       },
       {
         text: "마스터카드로 계산해도 되나요?",
         pronounce: "maseuteokadeuro gyesanhaedo doenayo?",
         meaning: "Can I pay with a Mastercard?",
+        mp3: "/audio/meal/pronunciation_ko_마스터카드로_계산해도_되나요_.mp3",
       },
       {
         text: "이 음식에 글루텐 들어 있나요?",
         pronounce: "i eumsige geulluten deureo innayo?",
         meaning: "Does this dish contain gluten?",
+        mp3: "/audio/meal/pronunciation_ko_이_음식에_글루텐_들어_있나요_.mp3",
       },
       {
         text: "예약했어요.",
         pronounce: "yeyakhaesseoyo",
         meaning: "I made a reservation.",
+        mp3: "/audio/meal/pronunciation_ko_예약했어요..mp3",
       },
       {
         text: "카드로 계산해도 되나요?",
         pronounce: "kadeuro gyesanhaedo doenayo?",
         meaning: "Can I pay by card?",
+        mp3: "/audio/meal/pronunciation_ko_카드로_계산해도_되나요_.mp3",
       },
       {
         text: "저는 땅콩 알레르기가 있어요.",
         pronounce: "jeoneun ttangkong allelergiga isseoyo",
         meaning: "I have a peanut allergy.",
+        mp3: "/audio/meal/pronunciation_ko_저는_땅콩_알레르기가_있어요.mp3",
       },
       {
         text: "수저 좀 주시겠어요?",
         pronounce: "sujeo jom jusigetseoyo?",
         meaning: "Could I have a spoon?",
+        mp3: "/audio/meal/pronunciation_ko_수저_좀_주시겠어요_.mp3",
       },
       {
         text: "어린이 메뉴 있나요?",
         pronounce: "eorini menyu innayo?",
         meaning: "Do you have a kids' menu?",
+        mp3: "/audio/meal/pronunciation_ko_어린이_메뉴_있나요_.mp3",
       },
       {
         text: "디저트는 뭐가 있나요?",
         pronounce: "dijeoteuneun mwoga innayo?",
         meaning: "What desserts do you have?",
+        mp3: "/audio/meal/pronunciation_ko_디저트는_뭐가_있나요_.mp3",
       },
       {
         text: "화장실은 어디에 있나요?",
         pronounce: "hwajangsireun eodie innayo?",
         meaning: "Where is the restroom?",
+        mp3: "/audio/meal/pronunciation_ko_화장실은_어딨어요_.mp3",
       },
       {
         text: "양이 얼마나 되나요?",
         pronounce: "yangi eolmana doenayo?",
         meaning: "How much is the portion?",
+        mp3: "/audio/meal/pronunciation_ko_양이_얼마나_되나요_.mp3",
       },
       {
         text: "얼마에요?",
         pronounce: "eolma-eyo?",
         meaning: "How much is it?",
+        mp3: "/audio/meal/pronunciation_ko_얼마에요_.mp3",
       },
     ],
   },
@@ -322,18 +357,33 @@ function DictionaryDetailPage() {
   const data = dataSet.find((item) => item.type === type);
   const { phrases } = data;
 
-  // audio 실행
-  const audioRef = useRef(null);
+  // type이 변경될 때마다 새로운 audioRefs 배열을 생성하기 위해 상태로 관리
+  const [audioRefs, setAudioRefs] = useState([]);
 
-  const playAudio = () => {
-    if (audioRef.current) {
-      audioRef.current.play();
+  useEffect(() => {
+    // type이 변경될 때마다 audioRefs 배열 초기화
+    setAudioRefs(phrases.map(() => React.createRef()));
+  }, [type, phrases]);
+
+  useEffect(() => {
+    return () => {
+      // 컴포넌트 언마운트 또는 재렌더링 시 오디오 중지
+      audioRefs.forEach((audioRef) => {
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.currentTime = 0; // 재생 위치 초기화
+        }
+      });
+    };
+  }, [audioRefs]);
+
+  const playAudio = (index) => {
+    if (audioRefs[index] && audioRefs[index].current) {
+      audioRefs[index].current.play().catch((error) => {
+        console.error("Error playing audio: ", error);
+      }); // 선택된 오디오 파일 재생
     }
   };
-
-  // const pauseAudio = () => {
-  //   audioRef.current.pause(); // 오디오 일시 정지
-  // };
 
   // 상태로 클릭된 문장의 뜻을 저장
   const [selectedIndex, setSelectedIndex] = useState(null);
@@ -368,11 +418,14 @@ function DictionaryDetailPage() {
               </PhraseText>
               {phrase.mp3 && (
                 <AudioContainer>
-                  <AudioElement ref={audioRef}>
+                  {/* 각 오디오를 개별적으로 관리 */}
+                  <AudioElement ref={audioRefs[index]}>
                     <source src={phrase.mp3} type="audio/mp3" />
                     Your browser does not support the audio tag.
                   </AudioElement>
-                  <AudioButton onClick={playAudio}>Play</AudioButton>
+                  <AudioButton onClick={() => playAudio(index)}>
+                    Play
+                  </AudioButton>
                 </AudioContainer>
               )}
             </PhraseItemTopBox>

@@ -18,6 +18,12 @@ const TopBox = styled.div`
   background-image: url("https://cdn.pixabay.com/photo/2014/05/05/17/27/jeju-island-338343_1280.jpg");
   background-size: 100% 100%;
 `;
+const TopBoxWelcome = styled.div`
+  color: #f5f5f5;
+  font-size: 24px;
+  /* font-weight: bold; */
+  font-weight: 700;
+`;
 const TopTitle = styled.div`
   margin-top: 85px;
   /* font-size: 90px; */
@@ -89,6 +95,7 @@ const MainFeatItem = styled.div`
 export {
   Container,
   TopBox,
+  TopBoxWelcome,
   TopTitle,
   TopLoginButton,
   TopLoginButtonImg,

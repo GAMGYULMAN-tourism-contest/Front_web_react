@@ -1,15 +1,28 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import * as S from "./MainPage.style";
 import Google from "../../assets/google.png";
 import { useNavigate } from "react-router-dom";
 import { setSchedules } from "../../state/schedules/schedulesSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setMakeModalOpen } from "../../state/schedules/schedulesSlice";
 import { DefaultButton } from "../../components";
+import { authInstance } from "../../api/axiosInstance";
+import { setUser } from "../../state/socket/socketSlice";
 
 function MainPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  // const { user } = useSelector((state) => state.socket || {}); // user가 없는 경우에도 안전하게 빈 객체를 반환
+  useEffect(() => {
+    async function getMember() {
+      const resApi = await authInstance.get("/members");
+      console.log(resApi);
+      dispatch(setUser(resApi.data.result));
+    }
+    if (localStorage.getItem("accessToken")) {
+      getMember();
+    }
+  }, []);
   return (
     <S.Container>
       <S.TopBox>
@@ -25,17 +38,9 @@ function MainPage() {
             <span>Continue with Google</span>
           </S.TopLoginButton>
         )}
-        {localStorage.getItem("accessToken") && (
-          <S.TopLoginButton
-            onClick={() => {
-              localStorage.removeItem("accessToken");
-              navigate("/");
-            }}
-          >
-            {/* <S.TopLoginButtonImg src={Google} alt="Google" />/ */}
-            <h2>logout</h2>
-          </S.TopLoginButton>
-        )}
+        {/* {localStorage.getItem("accessToken") && user && (
+          <S.TopBoxWelcome>WELCOME {user.email}!</S.TopBoxWelcome>
+        )} */}
         <S.MainFeatBox>
           <S.MainFeatItem
             onClick={() => {

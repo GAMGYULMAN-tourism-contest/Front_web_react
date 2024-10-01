@@ -223,18 +223,18 @@ function SchedulePage() {
         (error) => {
           console.error("STOMP connection error", error);
 
-          // 재연결 시도 로직
-          const reconnectInterval = Math.min(
-            5000 * (reconnectAttempts + 1),
-            30000
-          ); // 5초, 10초, 15초 간격으로 재연결 시도
-          setReconnectAttempts((prev) => prev + 1);
+          // // 재연결 시도 로직
+          // const reconnectInterval = Math.min(
+          //   5000 * (reconnectAttempts + 1),
+          //   30000
+          // ); // 5초, 10초, 15초 간격으로 재연결 시도
+          // setReconnectAttempts((prev) => prev + 1);
 
-          console.log(`Reconnecting in ${reconnectInterval / 1000} seconds...`);
+          // console.log(`Reconnecting in ${reconnectInterval / 1000} seconds...`);
 
-          setTimeout(() => {
-            connectStompClient(); // 재연결 시도
-          }, reconnectInterval);
+          // setTimeout(() => {
+          //   connectStompClient(); // 재연결 시도
+          // }, reconnectInterval);
         }
       );
     };
