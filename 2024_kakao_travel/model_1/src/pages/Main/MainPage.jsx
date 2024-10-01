@@ -17,7 +17,6 @@ function MainPage() {
         {!localStorage.getItem("accessToken") && (
           <S.TopLoginButton
             onClick={() => {
-              console.log("routing");
               const url = "http://3.35.101.171/oauth2/authorization/google";
               window.location.href = url;
             }}
@@ -40,6 +39,11 @@ function MainPage() {
         <S.MainFeatBox>
           <S.MainFeatItem
             onClick={() => {
+              if (!localStorage.getItem("accessToken")) {
+                alert("google login please!");
+                const url = "http://3.35.101.171/oauth2/authorization/google";
+                window.location.href = url;
+              }
               dispatch(setSchedules([]));
               dispatch(setMakeModalOpen(true));
               navigate("/schedule/1");
@@ -47,7 +51,16 @@ function MainPage() {
           >
             <DefaultButton inText="make new schedule"></DefaultButton>
           </S.MainFeatItem>
-          <S.MainFeatItem onClick={() => navigate("/mypage")}>
+          <S.MainFeatItem
+            onClick={() => {
+              if (!localStorage.getItem("accessToken")) {
+                alert("google login please!");
+                const url = "http://3.35.101.171/oauth2/authorization/google";
+                window.location.href = url;
+              }
+              navigate("/mypage");
+            }}
+          >
             <DefaultButton inText="view my schedules"></DefaultButton>
           </S.MainFeatItem>
         </S.MainFeatBox>

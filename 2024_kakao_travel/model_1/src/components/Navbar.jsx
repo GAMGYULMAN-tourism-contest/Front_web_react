@@ -11,6 +11,8 @@ import { TbMoodLookUp } from "react-icons/tb";
 import { IoMdPerson } from "react-icons/io";
 import { GrHelpBook } from "react-icons/gr";
 import HelpModal from "./HelpModal";
+import { IoIosMenu } from "react-icons/io";
+import MenuModal from "./MenuModal";
 
 const Container = styled.div`
   width: 100%;
@@ -271,6 +273,11 @@ function Navbar() {
   const [invitedMessages, setInvitedMessages] = useState([]);
   const [validInvitationNumber, setValidInvitationNumber] = useState("");
   const { currentSchedule } = useSelector((state) => state.schedules);
+  const [menuModalIsOpen, setMenuModalIsOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setMenuModalIsOpen(!menuModalIsOpen);
+  };
 
   const handleMailBoxClick = () => {
     setMailBoxOpen(!mailBoxOpen);
@@ -419,6 +426,10 @@ function Navbar() {
           helpBoxOpen && <HelpModal setHelpBoxOpen={setHelpBoxOpen} />
         }
         {/* <HelpModal /> */}
+        <span>
+          <IoIosMenu onClick={() => toggleMenu()}></IoIosMenu>
+        </span>
+        <MenuModal menuModalIsOpen={menuModalIsOpen} toggleMenu={toggleMenu} />
       </RightBox>
     </Container>
   );
