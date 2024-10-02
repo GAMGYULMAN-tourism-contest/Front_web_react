@@ -8,6 +8,7 @@ export const getSchedules = createAsyncThunk(
   async function getMySchedules(scheduleId) {
     const res = await authInstance.get("/schedules/" + scheduleId);
     // return res.data.result.dayEvents;
+    console.log(res.data.result);
     return res.data.result;
   }
 );

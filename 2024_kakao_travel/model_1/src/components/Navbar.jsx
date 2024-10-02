@@ -317,7 +317,7 @@ function Navbar() {
   //   console.log(apiRes);
   // };
 
-  const handleInvitation = useCallback(async (invitationId, status) => {
+  const handleInvitation = async (invitationId, status) => {
     try {
       const apiRes = await authInstance.patch("/invitations", {
         invitationId: invitationId,
@@ -328,8 +328,7 @@ function Navbar() {
     } catch (error) {
       console.error(error);
     }
-    
-  }, []);
+  };
 
   useEffect(() => {
     async function getMessages() {
@@ -343,7 +342,7 @@ function Navbar() {
     }
 
     getMessages();
-  }, [handleInvitation]);
+  }, []);
 
   return (
     <Container>

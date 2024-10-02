@@ -82,6 +82,7 @@ function Kakao() {
 }
 
 function MapPage() {
+  const { currentSchedule } = useSelector((state) => state.schedules);
   const navigate = useNavigate();
   return (
     <S.Container>
@@ -100,7 +101,9 @@ function MapPage() {
         // referrerPolicy="no-referrer-when-downgrade"
       ></iframe> */}
       {/* TODO: currentSchedule.id 로 내비게이트 */}
-      <S.FloatingButton onClick={() => navigate("/schedule/1")}>
+      <S.FloatingButton
+        onClick={() => navigate("/schedule/" + currentSchedule.id)}
+      >
         <RiCalendarScheduleLine />
       </S.FloatingButton>
     </S.Container>

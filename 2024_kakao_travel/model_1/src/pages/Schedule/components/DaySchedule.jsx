@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useDrag, useDrop } from "react-dnd";
 import styled from "styled-components";
@@ -237,6 +237,10 @@ const DraggableScheduleCardComponent = ({
     canDrag: () => !isResizing,
   });
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    setTempHeight(height);
+  }, [height]);
 
   // 클릭 핸들러 함수
   const handleClick = (event) => {

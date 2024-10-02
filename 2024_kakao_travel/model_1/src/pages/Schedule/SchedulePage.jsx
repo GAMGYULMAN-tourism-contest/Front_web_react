@@ -17,6 +17,7 @@ import {
   getSchedules,
   setCurrentSchedule,
   setFirstSchedulePageVisit,
+  updateDayEvent,
   // setSocketClient,
 } from "../../state/schedules/schedulesSlice";
 import { authInstance } from "../../api/axiosInstance";
@@ -193,6 +194,7 @@ function SchedulePage() {
             (messageOutput) => {
               const json = JSON.parse(messageOutput.body);
               console.log(json);
+              // dispatch(updateDayEvent({ day: json., updatedEvent, originDay: day }));
               dispatch(getSchedules(currentSchedule.id));
             }
           );
@@ -244,6 +246,10 @@ function SchedulePage() {
     //     stompClient.disconnect(); // 연결이 되지 않으면 강제 종료
     //   }
     // }, 5000); // 5초 타임아웃
+    return () => {
+      // clearTimeout(timeout);
+      stompClient && stompClient.disconnect();
+    };
   }, []);
 
   return (
@@ -268,7 +274,9 @@ function SchedulePage() {
               socketClient={socketClient} // props driling to dayschedule -> dayscheduleSlider -> modifyingBox
             />
           ))}
-          <S.FloatingButton onClick={() => navigate("/map/1")}>
+          <S.FloatingButton
+            onClick={() => navigate("/map/" + currentSchedule.id)}
+          >
             <FaMapMarkerAlt />
           </S.FloatingButton>
           <S.DayEventsAdditionButton onClick={() => addDayEvents()}>
