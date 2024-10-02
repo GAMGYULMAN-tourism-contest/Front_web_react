@@ -83,7 +83,7 @@ function MyPage() {
     }
 
     getMySchedules();
-  }, []);
+  }, [mySchedules]);
 
   return (
     <S.Container>
@@ -104,6 +104,7 @@ function MyPage() {
                     period={item.period}
                     startDate={item.startDate}
                     endDate={item.endDate}
+                    role={item.role}
                     // onclick(내비게이트 + 그 스케줄 상세 정보 가져오기)은 ScheduleBlock 컴포넌트에서 구성함
                   />
                 )

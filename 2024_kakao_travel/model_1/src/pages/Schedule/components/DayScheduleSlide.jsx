@@ -168,11 +168,9 @@ function DayScheduleSlide({ socketClient, address }) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [thisEvent, setThisEvent] = useState({});
-  console.log(socketClient);
 
   function modifyClickHandler() {
     setIsModifying(true);
-    console.log("modify");
   }
 
   // send 메시지 훅 만들까말까
@@ -195,7 +193,6 @@ function DayScheduleSlide({ socketClient, address }) {
       setIsLoading(true);
       try {
         const resApi = await authInstance.get("/events/" + id);
-        console.log(resApi);
         setThisEvent(resApi.data.result);
       } catch (error) {
         console.error(error);

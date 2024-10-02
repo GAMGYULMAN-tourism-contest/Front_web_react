@@ -16,7 +16,6 @@ function MainPage() {
   useEffect(() => {
     async function getMember() {
       const resApi = await authInstance.get("/members");
-      console.log(resApi);
       dispatch(setUser(resApi.data.result));
     }
     if (localStorage.getItem("accessToken")) {

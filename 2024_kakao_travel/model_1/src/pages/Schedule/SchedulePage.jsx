@@ -50,7 +50,7 @@ function SchedulePage() {
 
   // 스톰프 send 5 함수 (props 한번까지 전달해서 사용, 그 아래로는 util 함수사용)
   const sendCreateMessage = (chatMessage) => {
-    console.log(eventId);
+    // console.log(eventId);
     if (socketClient) {
       // const chatMessage = JSON.stringify({
       //   scheduleId: scheduleId,
@@ -63,7 +63,7 @@ function SchedulePage() {
       //   locationContentTypeId: "",
       // });
 
-      console.log(chatMessage);
+      // console.log(chatMessage);
 
       socketClient.send(
         "/events/create",
@@ -90,7 +90,7 @@ function SchedulePage() {
       //   locationContentTypeId: "",
       // });
 
-      console.log(chatMessage);
+      // console.log(chatMessage);
 
       socketClient.send(
         "/events/update",
@@ -103,14 +103,14 @@ function SchedulePage() {
   };
 
   const sendDeleteMessage = (chatMessage) => {
-    console.log(eventId);
+    // console.log(eventId);
     if (socketClient) {
       // const chatMessage = JSON.stringify({
       //   scheduleId: scheduleId,
       //   eventId: eventId,
       // });
 
-      console.log(chatMessage);
+      // console.log(chatMessage);
 
       socketClient.send(
         "/events/delete",
@@ -129,7 +129,7 @@ function SchedulePage() {
         scheduleId: currentSchedule.id,
       });
 
-      console.log(chatMessage);
+      // console.log(chatMessage);
 
       socketClient.send(
         "/events/dayEvents/create",
@@ -171,7 +171,7 @@ function SchedulePage() {
           Authorization: "Bearer " + token,
         },
         (frame) => {
-          console.log("Connected: " + frame);
+          // console.log("Connected: " + frame);
           setReconnectAttempts(0); // 연결 성공 시 재연결 시도 횟수 초기화
 
           stompClient.subscribe(
@@ -223,30 +223,27 @@ function SchedulePage() {
         (error) => {
           console.error("STOMP connection error", error);
 
-          // // 재연결 시도 로직
-          // const reconnectInterval = Math.min(
-          //   5000 * (reconnectAttempts + 1),
-          //   30000
-          // ); // 5초, 10초, 15초 간격으로 재연결 시도
-          // setReconnectAttempts((prev) => prev + 1);
-
-          // console.log(`Reconnecting in ${reconnectInterval / 1000} seconds...`);
-
-          // setTimeout(() => {
-          //   connectStompClient(); // 재연결 시도
-          // }, reconnectInterval);
+          // 재연결 시도 로직
+          const reconnectInterval = Math.min(
+            5000 * (reconnectAttempts + 1),
+            30000
+          ); // 5초, 10초, 15초 간격으로 재연결 시도
+          setReconnectAttempts((prev) => prev + 1);
+          setTimeout(() => {
+            connectStompClient(); // 재연결 시도
+          }, reconnectInterval);
         }
       );
     };
     connectStompClient();
 
     // 연결 지연 확인 후 종료
-    const timeout = setTimeout(() => {
-      if (stompClient && !stompClient.connected) {
-        console.error("connect time over");
-        stompClient.disconnect(); // 연결이 되지 않으면 강제 종료
-      }
-    }, 5000); // 5초 타임아웃
+    // const timeout = setTimeout(() => {
+    //   if (stompClient && !stompClient.connected) {
+    //     console.error("connect time over");
+    //     stompClient.disconnect(); // 연결이 되지 않으면 강제 종료
+    //   }
+    // }, 5000); // 5초 타임아웃
   }, []);
 
   return (

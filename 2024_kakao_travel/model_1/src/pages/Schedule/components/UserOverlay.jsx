@@ -70,8 +70,6 @@ function UserOverlay() {
         {members.slice(0, 4).map((user, idx) => (
           <UserIcon key={idx}>
             <FaUser size={20} />
-            {console.log(user)}
-            {/* <img src={user.image} /> */}
             <Tooltip className="tooltip">{user.email}</Tooltip>
           </UserIcon>
         ))}

@@ -123,7 +123,6 @@ const SearchBox = () => {
   // }, []);
 
   useEffect(() => {
-    console.log(currentSchedule);
     dispatch(getSearchItems({ page: 1, size: 10, isLoadMore: false }));
   }, []);
 

@@ -318,10 +318,17 @@ function Navbar() {
   // };
 
   const handleInvitation = useCallback(async (invitationId, status) => {
-    const apiRes = await authInstance.patch("/invitations", {
-      invitationId: invitationId,
-      status: status,
-    });
+    try {
+      const apiRes = await authInstance.patch("/invitations", {
+        invitationId: invitationId,
+        status: status,
+      });
+      setMailBoxOpen(false);
+      navigate(`/schedule/${apiRes.data.result.schedule.id}`);
+    } catch (error) {
+      console.error(error);
+    }
+    
   }, []);
 
   useEffect(() => {

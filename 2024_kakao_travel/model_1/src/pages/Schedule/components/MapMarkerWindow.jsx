@@ -37,18 +37,13 @@ const ContentTypeText = styled.p`
 // 인포윈도우 컴포넌트
 const MapMarkerWindow = ({ searchItem, onClickDelete }) => {
   // contentTypeId에 맞는 색상과 텍스트 설정
-  console.log(searchItem, onClickDelete);
   const backgroundColor = getColorByType(searchItem.contentTypeId);
   const contentTypeText = getTextByType(searchItem.contentTypeId);
 
   return (
-    <Container backgroundColor={backgroundColor} onClick={() => console.log(1)}>
+    <Container backgroundColor={backgroundColor}>
       <Title>{searchItem.title}</Title>
-      <Image
-        src={searchItem.images[0]}
-        alt={searchItem.title}
-        onClick={() => console.log(1)}
-      />
+      <Image src={searchItem.images[0]} alt={searchItem.title} />
       {/* <ContentTypeText>관광 타입: {contentTypeText}</ContentTypeText> */}
     </Container>
   );

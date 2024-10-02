@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import {
+  getSchedules,
+  setCurrentSchedule,
   setMakeModalOpen,
   setSchedules,
 } from "../../../state/schedules/schedulesSlice";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { authInstance } from "../../../api/axiosInstance";
+import { useNavigate } from "react-router";
 
 const ModalOverlay = styled.div`
   // 모달 뒤의 배경을 흐리게 처리
@@ -131,6 +134,7 @@ const CloseButton = styled.button`
 
 function MakeModal() {
   const { makeModalOpen } = useSelector((state) => state.schedules);
+  const navigate = useNavigate();
 
   // 4개의 입력 필드를 위한 상태 정의
   const [title, setTitle] = useState("");
@@ -171,8 +175,10 @@ function MakeModal() {
 
   async function postSchedule(reqData) {
     const resData = await authInstance.post("/schedules", reqData);
-    console.log(reqData, resData);
-    dispatch(setSchedules(resData.dayEvents));
+    dispatch(getSchedules(resData.data.result.id));
+    // dispatch(setSchedules(resData.data.result.dayEvents));
+    dispatch(setMakeModalOpen(false));
+    navigate(`/schedule/${resData.data.result.id}`);
   }
 
   const handleSubmit = (e) => {
@@ -196,8 +202,6 @@ function MakeModal() {
       return;
     } else {
       postSchedule(reqData);
-      dispatch(setMakeModalOpen(false));
-      // 전체 스케줄 생성 api 호출 및 currentSchedule에 저장
     }
   };
 

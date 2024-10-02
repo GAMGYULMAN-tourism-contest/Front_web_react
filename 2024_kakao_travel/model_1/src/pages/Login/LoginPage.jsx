@@ -36,9 +36,7 @@ function LoginPage() {
         const response = await defaultInstance.post("/oauth2/callback/google", {
           code: code,
         });
-        console.log(response.data);
         localStorage.setItem("accessToken", response.data.result.accessToken);
-        console.log(localStorage.getItem("accessToken"));
         navigate("/", { replace: true });
       } catch (error) {
         console.error(error);

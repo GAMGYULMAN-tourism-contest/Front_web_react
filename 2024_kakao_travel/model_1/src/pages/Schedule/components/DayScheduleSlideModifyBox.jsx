@@ -177,7 +177,6 @@ function ModifyingMainBox(props) {
       locationContentTypeId: "",
     };
 
-    console.log(chatMessage, currentSchedule);
     setIsModifying(false);
     SendUpdateMessage(JSON.stringify(chatMessage), socketClient);
     dispatch(setEventDetailOpen(false));

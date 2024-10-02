@@ -10,7 +10,6 @@ import MapMarkerWindow from "./components/MapMarkerWindow";
 function Kakao() {
   const { kakao } = window;
   const { searches } = useSelector((state) => state.searches);
-  console.log(searches);
 
   useEffect(() => {
     var container = document.getElementById("map"); //지도를 담을 영역의 DOM 레퍼런스
@@ -66,7 +65,6 @@ function Kakao() {
 
         // 마커 클릭 시 해당 오버레이만 표시 나중에 닫기 기능을 분리할 지 고민
         kakao.maps.event.addListener(marker, "click", function () {
-          console.log(overlay);
           if (overlay.getMap()) {
             overlay.setMap(null); // 이미 표시 중이면 오버레이를 닫음
             return;

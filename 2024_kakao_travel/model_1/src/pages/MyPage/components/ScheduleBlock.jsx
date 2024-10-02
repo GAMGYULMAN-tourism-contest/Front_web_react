@@ -11,6 +11,7 @@ import { useDispatch } from "react-redux";
 import { authInstance } from "../../../api/axiosInstance";
 
 const Container = styled.div`
+  position: relative;
   width: 43%;
   height: 50%;
   display: flex;
@@ -32,19 +33,50 @@ const Container = styled.div`
     font-weight: bold;
     color: #565656;
   }
+
+  button {
+    position: absolute;
+    top: 0px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    background-color: #ff6666;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    &:hover {
+      background-color: #45a049;
+    }
+    margin-top: 10px;
+    z-index: 10;
+  }
 `;
 
-function ScheduleBlock({ id, title, description, period, startDate, endDate }) {
+function ScheduleBlock({
+  id,
+  title,
+  description,
+  period,
+  startDate,
+  endDate,
+  role,
+}) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  console.log(id, title, description, period, startDate, endDate);
+  // console.log(id, title, description, period, startDate, endDate, role);
+
+  async function deleteSchedule() {
+    const apiRes = await authInstance.delete("/schedules/" + id);
+    dispatch(setSchedules({}));
+  }
+
   return (
     <Container
       onClick={() => {
         dispatch(getSchedules(id));
         async function getScheduleById() {
           const res = await authInstance.get("/schedules/" + id);
-          // console.log(res.data.result);
           dispatch(setCurrentSchedule(res.data.result));
           dispatch(setSchedules(res.data.result.dayEvents));
           dispatch(setMakeModalOpen(false));
@@ -60,6 +92,16 @@ function ScheduleBlock({ id, title, description, period, startDate, endDate }) {
       <p>
         <span>period</span> : {startDate} ~ {endDate}
       </p>
+      {role === "OWNER" && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            deleteSchedule();
+          }}
+        >
+          x
+        </button>
+      )}
     </Container>
   );
 }
