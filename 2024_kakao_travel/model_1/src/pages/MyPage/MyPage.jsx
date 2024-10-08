@@ -83,7 +83,7 @@ function MyPage() {
     }
 
     getMySchedules();
-  }, [mySchedules]);
+  }, []);
 
   return (
     <S.Container>
