@@ -1,2 +1,2 @@
 # Front_web_react
-web frontend of react js 
+react web frontend of 2024 kakao travel contest
